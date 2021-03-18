@@ -35,59 +35,89 @@
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="400.0" maxWidth="640.0" minHeight="400.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <children>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="400.0" prefWidth="640.0" VBox.vgrow="ALWAYS">
       <children>
-            <GridPane layoutX="246.0" layoutY="188.0" prefHeight="32.0" prefWidth="149.0">
+            <Rectangle arcHeight="5.0" fill="#2e3047" height="400.0" layoutX="320.0" smooth="false" stroke="BLACK" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" width="320.0" />
+            <GridPane layoutX="390.0" layoutY="214.0" prefHeight="38.0" prefWidth="182.0">
               <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="10.0" prefWidth="75.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="10.0" prefWidth="75.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="200.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="200.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button defaultButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="65.0" text="Generate" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Button fx:id="generateButton" defaultButton="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2E3047;" text="Generate" textFill="#2e3047" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
                   </Button>
-                  <Button cancelButton="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="65.0" text="Cancel" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2e3047;" text="Cancel" textFill="#2e3047" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
                   </Button>
                </children>
             </GridPane>
-            <ScrollPane layoutX="14.0" layoutY="224.0" prefHeight="137.0" prefWidth="614.0">
+            <Rectangle arcHeight="5.0" fill="#707793" height="400.0" smooth="false" stroke="BLACK" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" width="320.0" />
+            <TextArea id="content" fx:id="outputTextField" editable="false" focusTraversable="false" layoutX="320.0" layoutY="261.0" pickOnBounds="false" prefHeight="140.0" prefWidth="321.0" style="-fx-control-inner-background: #43455C; -fx-border-width: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white;" stylesheets="@content.css" wrapText="true">
                <cursor>
-                  <Cursor fx:constant="TEXT" />
-               </cursor>
-            </ScrollPane>
-            <TextArea editable="false" layoutX="13.0" layoutY="14.0" prefHeight="97.0" prefWidth="614.0" text="Hour Tracker...&#10;&#10;Select the file you would like to use below.&#10;Press generate to create a sheet with staff hours for the week.&#10;Generated tracker can be found at the end of the spreadsheet." />
-            <Pane layoutX="113.0" layoutY="127.0" prefHeight="61.0" prefWidth="415.0">
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor></TextArea>
+            <Pane layoutX="351.0" layoutY="107.0" prefHeight="57.0" prefWidth="260.0">
                <children>
-                  <TextField layoutX="14.0" layoutY="18.0" text="File Name..." />
-                  <Button layoutX="252.0" layoutY="18.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="131.0" text="Select File..." />
-                  <Label layoutX="201.0" layoutY="21.0" text="or" textAlignment="CENTER">
+                  <TextField fx:id="inputFileName" layoutY="11.0" prefHeight="30.0" prefWidth="110.0" promptText="Exact File Name" />
+                  <Button fx:id="selectFileButton" layoutX="150.0" layoutY="11.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="110.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2e3047;" text="Select File..." textFill="#2e3047">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></Button>
+                  <Label layoutX="123.0" layoutY="14.0" text="or" textAlignment="CENTER" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
                </children>
             </Pane>
+            <TextArea id="content" editable="false" focusTraversable="false" layoutX="-1.0" layoutY="261.0" pickOnBounds="false" prefHeight="140.0" prefWidth="322.0" style="-fx-control-inner-background: #43455C; -fx-border-radius: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" stylesheets="@content.css" text="1. Select the file you intend to analyze.&#10;&#10;2. Press generate to create a sheet with staff hours for the week.&#10;&#10;3. Generated tracker can be found at the end of the input spreadsheet." wrapText="true">
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
+            </TextArea>
+            <Label alignment="CENTER" layoutX="331.0" layoutY="14.0" prefHeight="66.0" prefWidth="299.0" text="Hour Tracker" textAlignment="CENTER" textFill="WHITE">
+               <font>
+                  <Font name="Agency FB" size="42.0" />
+               </font>
+            </Label>
+            <ImageView fitHeight="252.0" fitWidth="335.0" layoutX="10.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@HourTrackerGrad.PNG" />
+               </image>
+            </ImageView>
+            <TextArea id="content" fx:id="statusTextField" editable="false" focusTraversable="false" layoutX="373.0" layoutY="163.0" pickOnBounds="false" prefHeight="10.0" prefWidth="217.0" style="-fx-border-width: 0; -fx-control-inner-background: #43455C; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" stylesheets="@content.css" text="Select your file...">
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
+            </TextArea>
+            <Label alignment="CENTER" layoutX="389.0" layoutY="71.0" prefHeight="18.0" prefWidth="182.0" text="Created by Shane Gilbert" textAlignment="CENTER" textFill="WHITE">
+               <font>
+                  <Font size="10.0" />
+               </font>
+            </Label>
       </children>
     </AnchorPane>
   </children>
