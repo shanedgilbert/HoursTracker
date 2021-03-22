@@ -143,8 +143,8 @@ public class HourTracker {
 
                                 //Checks if staff doesn't exist and adds
                                 else {
-                                    System.out.println("Staff " + currentStaffName + " doesn't exist on the current roster!");
-                                    System.out.println("Adding " + currentStaffName + " to roster...");
+//                                    System.out.println("Staff " + currentStaffName + " doesn't exist on the current roster!");
+//                                    System.out.println("Adding " + currentStaffName + " to roster...");
 
                                     double shiftHours = calculateHoursForShift(cell.getStringCellValue());
                                     if (shiftHours > 6) {

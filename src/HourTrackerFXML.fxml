@@ -32,6 +32,7 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
+<?import java.net.URL?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -48,7 +49,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="400.0" maxWidth="640.0" minHeight="400.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="400.0" maxWidth="640.0" minHeight="400.0" minWidth="640.0" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="HourTrackerController">
   <children>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="400.0" prefWidth="640.0" VBox.vgrow="ALWAYS">
       <children>
@@ -62,12 +63,12 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button fx:id="generateButton" defaultButton="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2E3047;" text="Generate" textFill="#2e3047" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Button fx:id="generateButton" defaultButton="true" mnemonicParsing="false" onAction="#handleGenerateButton" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2E3047;" text="Generate" textFill="#2e3047" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
                   </Button>
-                  <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2e3047;" text="Cancel" textFill="#2e3047" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                  <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#handleCancelButton" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2e3047;" text="Cancel" textFill="#2e3047" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
@@ -75,14 +76,18 @@
                </children>
             </GridPane>
             <Rectangle arcHeight="5.0" fill="#707793" height="400.0" smooth="false" stroke="BLACK" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" width="320.0" />
-            <TextArea id="content" fx:id="outputTextField" editable="false" focusTraversable="false" layoutX="320.0" layoutY="261.0" pickOnBounds="false" prefHeight="140.0" prefWidth="321.0" style="-fx-control-inner-background: #43455C; -fx-border-width: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white;" stylesheets="@content.css" wrapText="true">
+            <TextArea id="content" fx:id="outputTextField" editable="false" focusTraversable="false" layoutX="320.0" layoutY="261.0" pickOnBounds="false" prefHeight="140.0" prefWidth="321.0" style="-fx-control-inner-background: #43455C; -fx-border-width: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white;" styleClass="scroll-bar" wrapText="true">
                <cursor>
                   <Cursor fx:constant="DEFAULT" />
-               </cursor></TextArea>
+               </cursor>
+               <stylesheets>
+                  <URL value="@content.css" />
+                  <URL value="@scrollBar.css" />
+               </stylesheets></TextArea>
             <Pane layoutX="351.0" layoutY="107.0" prefHeight="57.0" prefWidth="260.0">
                <children>
                   <TextField fx:id="inputFileName" layoutY="11.0" prefHeight="30.0" prefWidth="110.0" promptText="Exact File Name" />
-                  <Button fx:id="selectFileButton" layoutX="150.0" layoutY="11.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="110.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2e3047;" text="Select File..." textFill="#2e3047">
+                  <Button fx:id="selectFileButton" layoutX="150.0" layoutY="11.0" mnemonicParsing="false" onAction="#handleSelectFileButton" prefHeight="30.0" prefWidth="110.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2e3047;" text="Select File..." textFill="#2e3047">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor></Button>
@@ -93,10 +98,14 @@
                   </Label>
                </children>
             </Pane>
-            <TextArea id="content" editable="false" focusTraversable="false" layoutX="-1.0" layoutY="261.0" pickOnBounds="false" prefHeight="140.0" prefWidth="322.0" style="-fx-control-inner-background: #43455C; -fx-border-radius: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" stylesheets="@content.css" text="1. Select the file you intend to analyze.&#10;&#10;2. Press generate to create a sheet with staff hours for the week.&#10;&#10;3. Generated tracker can be found at the end of the input spreadsheet." wrapText="true">
+            <TextArea id="content" editable="false" focusTraversable="false" layoutX="-1.0" layoutY="261.0" pickOnBounds="false" prefHeight="140.0" prefWidth="322.0" style="-fx-control-inner-background: #43455C; -fx-border-radius: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" styleClass="scroll-bar" text="1. Select the file you intend to analyze. &#10;&#10;Ensure it only contains 7 days for most accurate reading!&#10;&#10;2. Press generate to create a sheet with staff hours for the week.&#10;&#10;3. Generated tracker can be found at the end of the input spreadsheet." wrapText="true">
                <cursor>
                   <Cursor fx:constant="DEFAULT" />
                </cursor>
+               <stylesheets>
+                  <URL value="@content.css" />
+                  <URL value="@scrollBar.css" />
+               </stylesheets>
             </TextArea>
             <Label alignment="CENTER" layoutX="331.0" layoutY="14.0" prefHeight="66.0" prefWidth="299.0" text="Hour Tracker" textAlignment="CENTER" textFill="WHITE">
                <font>
@@ -108,7 +117,7 @@
                   <Image url="@HourTrackerGrad.PNG" />
                </image>
             </ImageView>
-            <TextArea id="content" fx:id="statusTextField" editable="false" focusTraversable="false" layoutX="373.0" layoutY="163.0" pickOnBounds="false" prefHeight="10.0" prefWidth="217.0" style="-fx-border-width: 0; -fx-control-inner-background: #43455C; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" stylesheets="@content.css" text="Select your file...">
+            <TextArea id="content" fx:id="statusTextField" editable="false" focusTraversable="false" layoutX="373.0" layoutY="161.0" pickOnBounds="false" prefHeight="45.0" prefWidth="217.0" style="-fx-border-width: 0; -fx-control-inner-background: #43455C; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" stylesheets="@content.css" text="Select your file...">
                <cursor>
                   <Cursor fx:constant="DEFAULT" />
                </cursor>

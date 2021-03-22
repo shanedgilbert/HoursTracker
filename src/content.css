@@ -1,0 +1,7 @@
+.content {
+	-fx-background-radius: 0;
+}
+
+.button {
+	-fx-focus-color: transparent;
+}
