@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
 
 public class HourTrackerController implements Initializable {
     static TextArea staticOutputArea;
+    private String filePath = "";
 
     @FXML
     private Button generateButton;
@@ -31,12 +32,8 @@ public class HourTrackerController implements Initializable {
     private TextArea statusTextField;
 
     @FXML
-    private TextField inputFileName;
-
-    @FXML
     private void handleGenerateButton(ActionEvent event) {
-        String fileName = inputFileName.getText();
-        inputFile(fileName);
+        inputFile(filePath);
     }
 
     @FXML
@@ -50,11 +47,15 @@ public class HourTrackerController implements Initializable {
         Window owner = selectFileButton.getScene().getWindow();
 
         final FileChooser fileChooser = new FileChooser();
-        File input = fileChooser.showOpenDialog(owner);
+        File inputFile = fileChooser.showOpenDialog(owner);
 
-        //Updates status field with current file
-        statusTextField.setText("Current file: " + input.getName());
-        inputFileName.setText(input.getName());
+        if(inputFile != null) {
+            //Updates status field with current file
+            statusTextField.setText("Current file: " + inputFile.getName());
+            outputTextField.setText("Press 'Generate' to calculate hours based on current file selection.\n" +
+                    "Press 'Select File' if you would like to update the selected file.\n");
+            filePath = inputFile.getAbsolutePath();
+        }
     }
 
     private boolean verifyFileExtension(String fileName) {
@@ -71,7 +72,7 @@ public class HourTrackerController implements Initializable {
         }
         else {
             HourTracker ht = new HourTracker(fileName);
-            ht.buildMapFromRoster();
+            //ht.buildMapFromRoster();  //Used when building an initial roster map from a roster.txt file
             ht.inputExcelFile();
         }
     }

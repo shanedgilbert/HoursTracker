@@ -1,6 +1,6 @@
-SHARING VIOLATION
-	-Rerunning program after first passthrough
-Crash on file selector close
-UI Update
-File path (not file name)
+--SHARING VIOLATION--
+	---Rerunning program after first passthrough (api creates additional file and original cannot be saved)--
+--Crash on file selector close--
+--UI Update--
+--File path (not file name)--
 Reduce size of JRE bundle

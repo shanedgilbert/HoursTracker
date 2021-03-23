@@ -162,6 +162,7 @@ public class HourTracker {
                 }
             }
             saveHoursAsSheet(workbook);
+            workbook.close();
         }
         catch(FileNotFoundException fnf) {
             System.out.println("File not found: " + fileName);
@@ -170,7 +171,7 @@ public class HourTracker {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
-        System.out.println("Finished calculating all shift hours for all staff on schedule");
+        System.out.println("Finished calculating all shift hours for all staff on schedule!");
     }
 
     private void saveHoursAsSheet(XSSFWorkbook workbook) {
