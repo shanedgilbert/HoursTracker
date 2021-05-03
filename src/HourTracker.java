@@ -1,10 +1,17 @@
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.AreaReference;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 
 public class HourTracker {
@@ -102,7 +109,6 @@ public class HourTracker {
             System.out.println("Calculating shift hours...");
             //Loops through each sheet in workbook
             for(int i = 0; i < sheetCount; i++) {
-                //System.out.println("Sheet: " + (i + 1));
                 Sheet currentSheet = workbook.getSheetAt(i);
 
                 //Checks for hours sheet at end of workbook
@@ -143,9 +149,6 @@ public class HourTracker {
 
                                 //Checks if staff doesn't exist and adds
                                 else {
-//                                    System.out.println("Staff " + currentStaffName + " doesn't exist on the current roster!");
-//                                    System.out.println("Adding " + currentStaffName + " to roster...");
-
                                     double shiftHours = calculateHoursForShift(cell.getStringCellValue());
                                     if (shiftHours > 6) {
                                         shiftHours -= 0.5;
@@ -183,21 +186,41 @@ public class HourTracker {
         }
 
         //Creates new hours sheet
-        Sheet hoursSheet = workbook.createSheet(hoursSheetName);
+        XSSFSheet hoursSheet = workbook.createSheet(hoursSheetName);
+
+        //Creates header for table
+        Row headers = hoursSheet.createRow(0);
+        Cell staffNames = headers.createCell(0);    //Name header (1)
+        staffNames.setCellValue("Name");
+
+        Cell weeklyHours = headers.createCell(1);   //Hours per week header (2)
+        weeklyHours.setCellValue("Hours/wk");
+
+        Cell daysWorked = headers.createCell(2);    //Days worked header (3)
+        daysWorked.setCellValue("Days Worked");
+
+        Cell dayCount = headers.createCell(3);      //Number of days worked header (4)
+        daysWorked.setCellValue("Number of days worked");
 
         Object[] rosterArray = roster.keySet().toArray();
-        for(int i = 0; i < roster.size(); i++) {
+        for(int i = 1; i < roster.size() + 1; i++) {
             Row newRow = hoursSheet.createRow(i);
-            for(int j = 0; j < 3; j++) {
+            for(int j = 0; j < 4; j++) {
                 Cell newColumnCell = newRow.createCell(j);
                 if(j == 0) {
-                    newColumnCell.setCellValue(rosterArray[i].toString());
+                    newColumnCell.setCellValue(rosterArray[i - 1].toString());
                 }
                 else if(j == 1) {
-                    newColumnCell.setCellValue(roster.get(rosterArray[i].toString()).getStaffHours());
+                    newColumnCell.setCellValue(roster.get(rosterArray[i - 1].toString()).getStaffHours());
+                }
+                else if(j == 2) {
+                    newColumnCell.setCellValue(roster.get(rosterArray[i - 1].toString()).getShiftDates());
+                }
+                else if(j == 3) {
+                    newColumnCell.setCellValue(roster.get(rosterArray[i - 1].toString()).getDayCount());
                 }
                 else {
-                    newColumnCell.setCellValue(roster.get(rosterArray[i].toString()).getShiftDates());
+                    break;
                 }
             }
         }
@@ -281,6 +304,72 @@ public class HourTracker {
             } else {
                 System.out.println("Please enter yes (y) or no (n)");
             }
+        }
+    }
+
+    //TODO
+    public void saveNamesOnlySheets() {
+        try {
+            File sourceFile = new File(fileName);
+            File scheduleMiniFile = new File("FINAL SCHEDULE - Names Only.xlsx");
+
+            FileInputStream inputFis = new FileInputStream(sourceFile);
+            XSSFWorkbook inputWorkbook = new XSSFWorkbook(inputFis);
+            XSSFWorkbook outputWorkbook = new XSSFWorkbook();
+
+            int sheetCount = inputWorkbook.getNumberOfSheets();
+
+            //Loops through each sheet in workbook
+            for(int i = 0; i < sheetCount; i++) {
+                Sheet currentSheet = inputWorkbook.getSheetAt(i);
+
+                outputWorkbook.createSheet(currentSheet.getSheetName());
+                Sheet currentMiniSheet = outputWorkbook.getSheetAt(i);
+
+                //Checks for hours sheet at end of workbook
+                if(currentSheet.getSheetName().equals(hoursSheetName)) {
+                    break;
+                }
+
+                //Writes staff names (first 2 columns) to new file
+                int newRow = 0;
+                //Iterates over all rows in current sheet
+                for(int k = 0; k < currentSheet.getLastRowNum(); k++) {
+                    Row row = currentSheet.getRow(k);
+                    if (row != null) {
+                        if(row.getCell(0) != null && !row.getCell(0).toString().equals("")) {
+                            currentMiniSheet.createRow(newRow);
+                            Iterator<Cell> cellIterator = row.cellIterator();
+                            //Iterates over each column
+                            while (cellIterator.hasNext()) {
+                                cellIterator.next();
+                            }
+                            //Writes to new file
+                            for (int j = 0; j < maxCol; j++) {
+                                currentMiniSheet.getRow(newRow).createCell(j, CellType.BLANK);
+                                currentMiniSheet.getRow(newRow).getCell(j).setCellValue(currentSheet.getRow(k).getCell(j).toString());
+                            }
+                            newRow++;
+                        }
+                    }
+                }
+            }
+            try (OutputStream fileOutput = new FileOutputStream(scheduleMiniFile)){
+                outputWorkbook.write(fileOutput);
+            }
+            catch(FileNotFoundException fnf) {
+                System.out.println(fileName + " is currently open. Please close the file.");
+                return;
+            }
+            catch(Exception e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+            outputWorkbook.close();
+            inputWorkbook.close();
+        }catch(IOException io) {
+            System.out.println("Error with output file!");
+            io.printStackTrace();
         }
     }
 

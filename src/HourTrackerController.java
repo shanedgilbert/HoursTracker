@@ -20,6 +20,9 @@ public class HourTrackerController implements Initializable {
     private Button generateButton;
 
     @FXML
+    private Button generateNamesOnly;
+
+    @FXML
     private Button cancelButton;
 
     @FXML
@@ -33,7 +36,13 @@ public class HourTrackerController implements Initializable {
 
     @FXML
     private void handleGenerateButton(ActionEvent event) {
-        inputFile(filePath);
+        inputFile(filePath, 0);
+    }
+
+    //TODO
+    @FXML
+    private void handleNamesButton(ActionEvent event) {
+        inputFile(filePath, 1);
     }
 
     @FXML
@@ -62,7 +71,12 @@ public class HourTrackerController implements Initializable {
         return fileName.contains(".xlsx");
     }
 
-    private void inputFile(String fileName) {
+    /**
+     *
+     * @param fileName File extension for the Excel file we want to modify/analyze
+     * @param option 0 = hour analysis. 1 = create staff only sheet
+     */
+    private void inputFile(String fileName, int option) {
         if(fileName == null || fileName.isEmpty()) {
             statusTextField.setText("No file selected\n" +
                     "Please select a file above...");
@@ -72,8 +86,16 @@ public class HourTrackerController implements Initializable {
         }
         else {
             HourTracker ht = new HourTracker(fileName);
-            //ht.buildMapFromRoster();  //Used when building an initial roster map from a roster.txt file
-            ht.inputExcelFile();
+            //Hour Tracker
+            if(option == 0) {
+
+                //ht.buildMapFromRoster();  //Used when building an initial roster map from a roster.txt file
+                ht.inputExcelFile();
+            }
+            //Staff only sheet
+            else if(option == 1) {
+                ht.saveNamesOnlySheets();
+            }
         }
     }
 

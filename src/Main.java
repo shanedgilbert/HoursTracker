@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
+import java.util.Objects;
 
 public class Main extends Application {
 
@@ -40,7 +41,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         //Load FXML layout
-        Parent root = FXMLLoader.load(getClass().getResource("HourTrackerFXML.fxml"));
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("HourTrackerFXML.fxml")));
 
         outputTextArea = HourTrackerController.staticOutputArea;
 
