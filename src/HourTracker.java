@@ -177,6 +177,11 @@ public class HourTracker {
         System.out.println("Finished calculating all shift hours for all staff on schedule!");
     }
 
+    /**
+     * Saves the calculated staff hours as a separate sheet at the end of the workbook.
+     * Contains staff names, the hours they worked, the days they worked and the number of days worked
+     * @param workbook Input Excel workbook
+     */
     private void saveHoursAsSheet(XSSFWorkbook workbook) {
         System.out.println("Saving hours as excel sheet to current workbook...");
 
@@ -202,6 +207,7 @@ public class HourTracker {
         Cell dayCount = headers.createCell(3);      //Number of days worked header (4)
         daysWorked.setCellValue("Number of days worked");
 
+        //Updates each cell of the row with the staff data. ie: staff name, hours, days, # of days
         Object[] rosterArray = roster.keySet().toArray();
         for(int i = 1; i < roster.size() + 1; i++) {
             Row newRow = hoursSheet.createRow(i);
@@ -254,6 +260,9 @@ public class HourTracker {
         this.fileName = fileName;
     }
 
+    /**
+     * Updates the roster file
+     */
     public void updateRosterList() {
         String rosterFileName = "roster.txt";
         File rosterFile = new File(rosterFileName);
@@ -307,7 +316,10 @@ public class HourTracker {
         }
     }
 
-    //TODO
+    //TODO: shift header formatting
+    /**
+     * Saves a separate excel file with the staff names and their shifts
+     */
     public void saveNamesOnlySheets() {
         try {
             File sourceFile = new File(fileName);
@@ -373,6 +385,11 @@ public class HourTracker {
         }
     }
 
+    /**
+     * Helper method for updateRosterList to save the updated roster file
+     * @param rosterFileName file name for roster file
+     * @param roster ArrayList of the roster
+     */
     private void RosterWriteToFile(String rosterFileName, ArrayList<String> roster) {
         try {
             PrintWriter pw = new PrintWriter(rosterFileName);

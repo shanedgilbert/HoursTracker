@@ -39,18 +39,29 @@ public class HourTrackerController implements Initializable {
         inputFile(filePath, 0);
     }
 
-    //TODO
+    /**
+     * Handles the names only button
+     * @param event names only button
+     */
     @FXML
     private void handleNamesButton(ActionEvent event) {
         inputFile(filePath, 1);
     }
 
+    /**
+     * Closes the program
+     * @param event program close button
+     */
     @FXML
     private void handleCancelButton(ActionEvent event) {
         Stage stage = (Stage) cancelButton.getScene().getWindow();
         stage.close();
     }
 
+    /**
+     * Handles the event of the select file button. Updates the outputTextField to let user's know
+     * @param event file selector
+     */
     @FXML
     private void handleSelectFileButton(ActionEvent event) {
         Window owner = selectFileButton.getScene().getWindow();
@@ -62,11 +73,17 @@ public class HourTrackerController implements Initializable {
             //Updates status field with current file
             statusTextField.setText("Current file: " + inputFile.getName());
             outputTextField.setText("Press 'Generate' to calculate hours based on current file selection.\n" +
-                    "Press 'Select File' if you would like to update the selected file.\n");
+                    "Press 'Select File' if you would like to update the selected file.\n" +
+                    "Please be patient as the first generation takes a while.\n");
             filePath = inputFile.getAbsolutePath();
         }
     }
 
+    /**
+     * Verifies the extension of the input file. Returns true if the file name contains .xlsx
+     * @param fileName name of the file
+     * @return true if file name contains .xlsx. False otherwise
+     */
     private boolean verifyFileExtension(String fileName) {
         return fileName.contains(".xlsx");
     }
