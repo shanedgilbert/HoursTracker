@@ -11,14 +11,13 @@ import java.util.*;
 public class HourTracker {
     private String fileName;
     private final String hoursSheetName = "Weekly Hours";
-    private int maxCol;
+    final static int MAX_COL = 2;
     Map<String, StaffData> roster = new HashMap<>();
 
     /**
      * Empty constructor
      */
     public HourTracker() {
-        maxCol = 0;
         fileName = "";
     }
 
@@ -27,7 +26,6 @@ public class HourTracker {
      * @param fileName name of file being imported
      */
     public HourTracker(String fileName) {
-        maxCol = 2;
         this.fileName = fileName;
     }
 
@@ -118,9 +116,9 @@ public class HourTracker {
                     String currentStaffName = "";
 
                     //Iterates over each column
-                    while(cellIterator.hasNext() && currentColumn < maxCol) {
+                    while(cellIterator.hasNext() && currentColumn < MAX_COL) {
                         Cell cell = cellIterator.next();
-                        if(cell.getColumnIndex() < maxCol) {
+                        if(cell.getColumnIndex() < MAX_COL) {
                             if (currentColumn == 0) {
                                 currentStaffName = cell.getStringCellValue();
                             } else if (currentColumn == 1) {
@@ -199,7 +197,7 @@ public class HourTracker {
         daysWorked.setCellValue("Days Worked");
 
         Cell dayCount = headers.createCell(3);      //Number of days worked header (4)
-        daysWorked.setCellValue("Number of days worked");
+        dayCount.setCellValue("Number of days worked");
 
         //Updates each cell of the row with the staff data. ie: staff name, hours, days, # of days
         Object[] rosterArray = roster.keySet().toArray();
@@ -353,7 +351,7 @@ public class HourTracker {
                                 cellIterator.next();
                             }
                             //Writes to new file
-                            for (int j = 0; j < maxCol; j++) {
+                            for (int j = 0; j < MAX_COL; j++) {
                                 currentMiniSheet.getRow(newRow).createCell(j, CellType.BLANK);
                                 cellContent = currentSheet.getRow(k).getCell(j).toString();
                                 currentMiniSheet.getRow(newRow).getCell(j).setCellValue(cellContent);
@@ -382,7 +380,7 @@ public class HourTracker {
                         }
                     }
                 }
-                for(int j = 0; j < maxCol; j++) {
+                for(int j = 0; j < MAX_COL; j++) {
                     currentMiniSheet.autoSizeColumn(j);
                 }
             }
