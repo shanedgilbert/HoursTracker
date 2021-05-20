@@ -1,17 +1,11 @@
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.util.AreaReference;
-import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.*;
 
 public class HourTracker {
@@ -43,7 +37,7 @@ public class HourTracker {
      * @return Hours for shift
      */
     private double calculateHoursForShift(String hours) {
-        double totalHours = 0;
+        double totalHours;
 
         if(hours.contains("Charge")) {
             totalHours = 8.5;
@@ -282,7 +276,7 @@ public class HourTracker {
         Scanner in = new Scanner(System.in);
         while (true) {
             String userResponse = in.next();
-            if (userResponse.toLowerCase().equals("yes") || userResponse.toLowerCase().equals("y")) {
+            if (userResponse.equalsIgnoreCase("yes") || userResponse.equalsIgnoreCase("y")) {
                 while(true) {
                     System.out.println("Enter name to remove from roster");
                     String rosterName = in.next();
@@ -291,11 +285,11 @@ public class HourTracker {
                         System.out.println("Would you like to remove another staff?");
                         while(true) {
                             userResponse = in.next();
-                            if(userResponse.toLowerCase().equals("no") || userResponse.toLowerCase().equals("n")) {
-                                RosterWriteToFile(rosterFileName, roster);
+                            if(userResponse.equalsIgnoreCase("no") || userResponse.equalsIgnoreCase("n")) {
+                                rosterWriteToFile(rosterFileName, roster);
                                 return;
                             }
-                            else if(userResponse.toLowerCase().equals("yes") || userResponse.toLowerCase().equals("y")) {
+                            else if(userResponse.equalsIgnoreCase("yes") || userResponse.equalsIgnoreCase("y")) {
                                 break;
                             }
                             else {
@@ -307,9 +301,9 @@ public class HourTracker {
                         System.out.println("Staff does not exist on current roster. Please try again");
                     }
                 }
-            } else if (userResponse.toLowerCase().equals("no") || userResponse.toLowerCase().equals("n")) {
+            } else if (userResponse.equalsIgnoreCase("no") || userResponse.equalsIgnoreCase("n")) {
                 System.out.println("Exiting...");
-                RosterWriteToFile(rosterFileName, roster);
+                rosterWriteToFile(rosterFileName, roster);
             } else {
                 System.out.println("Please enter yes (y) or no (n)");
             }
@@ -330,6 +324,8 @@ public class HourTracker {
             XSSFWorkbook outputWorkbook = new XSSFWorkbook();
 
             int sheetCount = inputWorkbook.getNumberOfSheets();
+
+            String cellContent;
 
             //Loops through each sheet in workbook
             for(int i = 0; i < sheetCount; i++) {
@@ -359,11 +355,35 @@ public class HourTracker {
                             //Writes to new file
                             for (int j = 0; j < maxCol; j++) {
                                 currentMiniSheet.getRow(newRow).createCell(j, CellType.BLANK);
-                                currentMiniSheet.getRow(newRow).getCell(j).setCellValue(currentSheet.getRow(k).getCell(j).toString());
+                                cellContent = currentSheet.getRow(k).getCell(j).toString();
+                                currentMiniSheet.getRow(newRow).getCell(j).setCellValue(cellContent);
+
+                                //Sets the cell content and formatting
+                                if(cellContent.contains("[") || cellContent.contains("Day Shift")) {
+                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "day").getCellStyle());
+                                }
+                                else if(cellContent.contains("Mid Shift")) {
+                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "mid").getCellStyle());
+                                }
+                                else if(cellContent.contains("Night Shift")) {
+                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "night").getCellStyle());
+                                }
+                                else if(cellContent.contains("Staff Name") || cellContent.contains("Shift")) {
+                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "header").getCellStyle());
+                                }
+                                else if(j == 1) {
+                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "times").getCellStyle());
+                                }
+                                else if(j == 0) {
+                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "names").getCellStyle());
+                                }
                             }
                             newRow++;
                         }
                     }
+                }
+                for(int j = 0; j < maxCol; j++) {
+                    currentMiniSheet.autoSizeColumn(j);
                 }
             }
             try (OutputStream fileOutput = new FileOutputStream(scheduleMiniFile)){
@@ -390,7 +410,7 @@ public class HourTracker {
      * @param rosterFileName file name for roster file
      * @param roster ArrayList of the roster
      */
-    private void RosterWriteToFile(String rosterFileName, ArrayList<String> roster) {
+    private void rosterWriteToFile(String rosterFileName, ArrayList<String> roster) {
         try {
             PrintWriter pw = new PrintWriter(rosterFileName);
             for(String s : roster) {
