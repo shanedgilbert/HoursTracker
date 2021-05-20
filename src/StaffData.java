@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 
+//TODO: function comments
 public class StaffData {
     private ArrayList<String> shiftDates = new ArrayList<>();
     private double staffHours;

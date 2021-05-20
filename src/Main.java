@@ -23,7 +23,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.util.Objects;
-
+//TODO: Comments
 public class Main extends Application {
 
     private final PipedInputStream pipeIn = new PipedInputStream();

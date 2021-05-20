@@ -12,6 +12,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+//TODO: Improve instructions/guidelines/add FAQ?
 public class HourTrackerController implements Initializable {
     static TextArea staticOutputArea;
     private String filePath = "";

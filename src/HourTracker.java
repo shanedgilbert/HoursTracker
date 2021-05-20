@@ -205,24 +205,24 @@ public class HourTracker {
             Row newRow = hoursSheet.createRow(i);
             for(int j = 0; j < 4; j++) {
                 Cell newColumnCell = newRow.createCell(j);
+                //Staff names
                 if(j == 0) {
                     newColumnCell.setCellValue(rosterArray[i - 1].toString());
                 }
+                //Staff hours
                 else if(j == 1) {
                     newColumnCell.setCellValue(roster.get(rosterArray[i - 1].toString()).getStaffHours());
                 }
+                //Days staff are shifted
                 else if(j == 2) {
                     newColumnCell.setCellValue(roster.get(rosterArray[i - 1].toString()).getShiftDates());
                 }
-                else if(j == 3) {
-                    newColumnCell.setCellValue(roster.get(rosterArray[i - 1].toString()).getDayCount());
-                }
+                //Day count
                 else {
-                    break;
+                    newColumnCell.setCellValue(roster.get(rosterArray[i - 1].toString()).getDayCount());
                 }
             }
         }
-
         try (OutputStream fileOutput = new FileOutputStream(fileName)){
             workbook.write(fileOutput);
         }
@@ -308,7 +308,7 @@ public class HourTracker {
         }
     }
 
-    //TODO: shift header formatting
+    //TODO: shift header formatting - header merging, table, alternating rows
     /**
      * Saves a separate excel file with the staff names and their shifts
      */
@@ -357,22 +357,31 @@ public class HourTracker {
                                 currentMiniSheet.getRow(newRow).getCell(j).setCellValue(cellContent);
 
                                 //Sets the cell content and formatting
+                                //TODO: Table with headers
+                                //Day shift header
                                 if(cellContent.contains("[") || cellContent.contains("Day Shift")) {
                                     currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "day").getCellStyle());
                                 }
+                                //TODO: Merge with cell to right & table
+                                //Mid shift header
                                 else if(cellContent.contains("Mid Shift")) {
                                     currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "mid").getCellStyle());
                                 }
+                                //TODO: merge with cell to the right & table
+                                //Night shift header
                                 else if(cellContent.contains("Night Shift")) {
                                     currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "night").getCellStyle());
                                 }
+                                //"Staff Name" and "Shift" header
                                 else if(cellContent.contains("Staff Name") || cellContent.contains("Shift")) {
                                     currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "header").getCellStyle());
                                 }
+                                //Shift times
                                 else if(j == 1) {
                                     currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "times").getCellStyle());
                                 }
-                                else if(j == 0) {
+                                //Staff names
+                                else {
                                     currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "names").getCellStyle());
                                 }
                             }
@@ -397,7 +406,8 @@ public class HourTracker {
             }
             outputWorkbook.close();
             inputWorkbook.close();
-        }catch(IOException io) {
+        }
+        catch(IOException io) {
             System.out.println("Error with output file!");
             io.printStackTrace();
         }
