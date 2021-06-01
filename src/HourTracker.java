@@ -1,14 +1,10 @@
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.locks.Condition;
 
 public class HourTracker {
     private String fileName;
@@ -317,7 +313,6 @@ public class HourTracker {
         }
     }
 
-    //TODO: shift header formatting - header merging, table, alternating rows
     /**
      * Saves a separate excel file with the staff names and their shifts
      */
@@ -332,14 +327,12 @@ public class HourTracker {
 
             int sheetCount = inputWorkbook.getNumberOfSheets();
 
-            String cellContent;
-
             //Loops through each sheet in workbook
             for(int i = 0; i < sheetCount; i++) {
-                Sheet currentSheet = inputWorkbook.getSheetAt(i);
+                XSSFSheet currentSheet = inputWorkbook.getSheetAt(i);
 
                 outputWorkbook.createSheet(currentSheet.getSheetName());
-                Sheet currentMiniSheet = outputWorkbook.getSheetAt(i);
+                XSSFSheet currentMiniSheet = outputWorkbook.getSheetAt(i);
                 currentMiniSheet.setZoom(55);
 
                 //Checks for hours sheet at end of workbook
@@ -347,58 +340,8 @@ public class HourTracker {
                     break;
                 }
 
-                //Writes staff names (first 2 columns) to new file
-                int newRow = 0;
-                //Iterates over all rows in current sheet
-                for(int k = 0; k < currentSheet.getLastRowNum(); k++) {
-                    Row row = currentSheet.getRow(k);
-                    if (row != null) {
-                        if(row.getCell(0) != null && !row.getCell(0).toString().equals("")) {
-                            currentMiniSheet.createRow(newRow);
-                            Iterator<Cell> cellIterator = row.cellIterator();
-                            //Iterates over each column
-                            while (cellIterator.hasNext()) {
-                                cellIterator.next();
-                            }
-                            //Writes to new file
-                            for (int j = 0; j < MAX_COL; j++) {
-                                currentMiniSheet.getRow(newRow).createCell(j, CellType.BLANK);
-                                cellContent = currentSheet.getRow(k).getCell(j).toString();
-                                currentMiniSheet.getRow(newRow).getCell(j).setCellValue(cellContent);
+                copyToNewSheet(outputWorkbook, currentSheet, currentMiniSheet);
 
-                                //Sets the cell content and formatting
-                                //TODO: Table with headers
-                                //Day shift header
-                                if(cellContent.contains("[") || cellContent.contains("Day Shift")) {
-                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "day").getCellStyle());
-                                }
-                                //TODO: table
-                                //Mid shift header
-                                else if(cellContent.contains("Mid Shift")) {
-                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "mid").getCellStyle());
-                                }
-                                //TODO: table
-                                //Night shift header
-                                else if(cellContent.contains("Night Shift")) {
-                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "night").getCellStyle());
-                                }
-                                //"Staff Name" and "Shift" header
-                                else if(cellContent.contains("Staff Name") || cellContent.contains("Shift")) {
-                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "header").getCellStyle());
-                                }
-                                //Shift times
-                                else if(j == 1) {
-                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "times").getCellStyle());
-                                }
-                                //Staff names
-                                else {
-                                    currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "names").getCellStyle());
-                                }
-                            }
-                            newRow++;
-                        }
-                    }
-                }
                 //Sets the alternating color rule for the current sheet
                 setFormatting(currentMiniSheet);
             }
@@ -423,11 +366,67 @@ public class HourTracker {
     }
 
     /**
+     * Copies the contents from one sheet to another
+     * For use in copying the names and shift times from a master schedule to a mini version
+     * @param outputWorkbook Current workbook that contains the master schedule
+     * @param currentSheet Current sheet being copied from
+     * @param currentMiniSheet New Sheet containing the data from the old sheet
+     */
+    private void copyToNewSheet(XSSFWorkbook outputWorkbook, XSSFSheet currentSheet, XSSFSheet currentMiniSheet) {
+        //Writes staff names (first 2 columns) to new file
+        int newRow = 0;
+        String cellContent;
+
+        //Iterates over all rows in current sheet
+        for(int k = 0; k < currentSheet.getLastRowNum(); k++) {
+            Row row = currentSheet.getRow(k);
+            if (row != null) {
+                if(row.getCell(0) != null && !row.getCell(0).toString().equals("")) {
+                    currentMiniSheet.createRow(newRow);
+                    //Writes to new file
+                    for (int j = 0; j < MAX_COL; j++) {
+                        currentMiniSheet.getRow(newRow).createCell(j, CellType.BLANK);
+                        cellContent = currentSheet.getRow(k).getCell(j).toString();
+                        currentMiniSheet.getRow(newRow).getCell(j).setCellValue(cellContent);
+
+                        //Sets the cell content and formatting
+                        //Day shift header
+                        if(cellContent.contains("[") || cellContent.contains("Day Shift")) {
+                            currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "day").getCellStyle());
+                        }
+                        //Mid shift header
+                        else if(cellContent.contains("Mid Shift")) {
+                            currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "mid").getCellStyle());
+                        }
+                        //Night shift header
+                        else if(cellContent.contains("Night Shift")) {
+                            currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "night").getCellStyle());
+                        }
+                        //"Staff Name" and "Shift" header
+                        else if(cellContent.contains("Staff Name") || cellContent.contains("Shift")) {
+                            currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "header").getCellStyle());
+                        }
+                        //Shift times
+                        else if(j == 1) {
+                            currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "times").getCellStyle());
+                        }
+                        //Staff names
+                        else {
+                            currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "names").getCellStyle());
+                        }
+                    }
+                    newRow++;
+                }
+            }
+        }
+    }
+
+    /**
      * Creates the conditional rule for alternating rows in table and adds it to the current sheet
      * Used to color every other row for staff names
      * Needs to be done after copying contents from master schedule due to indexing
      */
-    private void setFormatting(Sheet currentSheet) {
+    private void setFormatting(XSSFSheet currentSheet) {
 
         //Iterates over all rows in current sheet to find table breakpoints
         for(int k = 0; k < currentSheet.getLastRowNum(); k++) {
@@ -439,6 +438,7 @@ public class HourTracker {
                 if(cellContent.contains("[") || cellContent.contains("Day Shift")) {
                     dayShiftFirstRow = k + 2;
                 }
+
                 //Mid shift header
                 else if(cellContent.contains("Mid Shift")) {
                     //Merges cell
@@ -446,6 +446,7 @@ public class HourTracker {
                     dayShiftLastRow = k - 1;
                     midShiftFirstRow = k + 2;
                 }
+
                 //Night shift header
                 else if(cellContent.contains("Night Shift")) {
                     //Merges cell
