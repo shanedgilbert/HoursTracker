@@ -1,18 +1,27 @@
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.AreaReference;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.locks.Condition;
 
 public class HourTracker {
     private String fileName;
     private final String hoursSheetName = "Weekly Hours";
     final static int MAX_COL = 2;
     Map<String, StaffData> roster = new HashMap<>();
+
+    int dayShiftFirstRow = 0;
+    int dayShiftLastRow = 0;
+    int midShiftFirstRow = 0;
+    int midShiftLastRow = 0;
+    int nightShiftFirstRow = 0;
+    int nightShiftLastRow = 0;
 
     /**
      * Empty constructor
@@ -331,6 +340,7 @@ public class HourTracker {
 
                 outputWorkbook.createSheet(currentSheet.getSheetName());
                 Sheet currentMiniSheet = outputWorkbook.getSheetAt(i);
+                currentMiniSheet.setZoom(55);
 
                 //Checks for hours sheet at end of workbook
                 if(currentSheet.getSheetName().equals(hoursSheetName)) {
@@ -362,12 +372,12 @@ public class HourTracker {
                                 if(cellContent.contains("[") || cellContent.contains("Day Shift")) {
                                     currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "day").getCellStyle());
                                 }
-                                //TODO: Merge with cell to right & table
+                                //TODO: table
                                 //Mid shift header
                                 else if(cellContent.contains("Mid Shift")) {
                                     currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "mid").getCellStyle());
                                 }
-                                //TODO: merge with cell to the right & table
+                                //TODO: table
                                 //Night shift header
                                 else if(cellContent.contains("Night Shift")) {
                                     currentMiniSheet.getRow(newRow).getCell(j).setCellStyle(new HourTrackerCellStyle(outputWorkbook, "night").getCellStyle());
@@ -389,9 +399,8 @@ public class HourTracker {
                         }
                     }
                 }
-                for(int j = 0; j < MAX_COL; j++) {
-                    currentMiniSheet.autoSizeColumn(j);
-                }
+                //Sets the alternating color rule for the current sheet
+                setFormatting(currentMiniSheet);
             }
             try (OutputStream fileOutput = new FileOutputStream(scheduleMiniFile)){
                 outputWorkbook.write(fileOutput);
@@ -411,6 +420,61 @@ public class HourTracker {
             System.out.println("Error with output file!");
             io.printStackTrace();
         }
+    }
+
+    /**
+     * Creates the conditional rule for alternating rows in table and adds it to the current sheet
+     * Used to color every other row for staff names
+     * Needs to be done after copying contents from master schedule due to indexing
+     */
+    private void setFormatting(Sheet currentSheet) {
+
+        //Iterates over all rows in current sheet to find table breakpoints
+        for(int k = 0; k < currentSheet.getLastRowNum(); k++) {
+            //Writes to new file
+            for (int j = 0; j < MAX_COL; j++) {
+                String cellContent = currentSheet.getRow(k).getCell(j).toString();
+
+                //Day shift header
+                if(cellContent.contains("[") || cellContent.contains("Day Shift")) {
+                    dayShiftFirstRow = k + 2;
+                }
+                //Mid shift header
+                else if(cellContent.contains("Mid Shift")) {
+                    //Merges cell
+                    currentSheet.addMergedRegion(new CellRangeAddress(k, k, 0, 1));
+                    dayShiftLastRow = k - 1;
+                    midShiftFirstRow = k + 2;
+                }
+                //Night shift header
+                else if(cellContent.contains("Night Shift")) {
+                    //Merges cell
+                    currentSheet.addMergedRegion(new CellRangeAddress(k, k, 0, 1));
+                    midShiftLastRow = k - 1;
+                    nightShiftFirstRow = k + 2;
+                    nightShiftLastRow = currentSheet.getLastRowNum();
+                }
+            }
+        }
+
+        //Creates conditional formatting rule: every other row is set to "pale blue"
+        SheetConditionalFormatting sheetFormatting = currentSheet.getSheetConditionalFormatting();
+        ConditionalFormattingRule alternatingBlue = sheetFormatting.createConditionalFormattingRule("MOD(ROW(),2) = 0");
+        PatternFormatting blueFill = alternatingBlue.createPatternFormatting();
+        blueFill.setFillBackgroundColor(IndexedColors.PALE_BLUE.getIndex());
+
+        //GET CellRangeAddress[]
+        CellRangeAddress[] dayShiftRange   = {new CellRangeAddress(dayShiftFirstRow, dayShiftLastRow, 0, 1)};
+        CellRangeAddress[] midShiftRange   = {new CellRangeAddress(midShiftFirstRow, midShiftLastRow, 0, 1)};
+        CellRangeAddress[] nightShiftRange = {new CellRangeAddress(nightShiftFirstRow, nightShiftLastRow, 0, 1)};
+        sheetFormatting.addConditionalFormatting(dayShiftRange, alternatingBlue);
+        sheetFormatting.addConditionalFormatting(midShiftRange, alternatingBlue);
+        sheetFormatting.addConditionalFormatting(nightShiftRange, alternatingBlue);
+
+        //Sizes columns to fit
+        //Size = 256 * character width
+        currentSheet.setColumnWidth(0, 9216);
+        currentSheet.setColumnWidth(1, 7168);
     }
 
     /**

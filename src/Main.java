@@ -23,9 +23,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.util.Objects;
-//TODO: Comments
 public class Main extends Application {
-
     private final PipedInputStream pipeIn = new PipedInputStream();
     private final PipedInputStream pipeIn2 = new PipedInputStream();
     Thread errorThrower;
@@ -37,7 +35,10 @@ public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
+    /**
+     * Sets the stage for the application and adds a controller to update the outputTextArea with the System.out.println
+     * @param stage Current stage of application
+     */
     @Override
     public void start(Stage stage) throws Exception {
         //Load FXML layout
@@ -61,6 +62,9 @@ public class Main extends Application {
         });
     }
 
+    /**
+     * Updates the output with the system outs
+     */
     public void executeReaderThreads() {
         try {
             PipedOutputStream pout = new PipedOutputStream(this.pipeIn);
@@ -75,6 +79,9 @@ public class Main extends Application {
         ReaderThread obj = new ReaderThread(pipeIn, pipeIn2, errorThrower, reader, reader2, quit, outputTextArea);
     }
 
+    /**
+     * Closes the output thread
+     */
     synchronized void closeThread() {
         System.out.println("Closing...");
         this.quit = true;

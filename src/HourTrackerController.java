@@ -1,9 +1,7 @@
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -36,35 +34,32 @@ public class HourTrackerController implements Initializable {
     private TextArea statusTextField;
 
     @FXML
-    private void handleGenerateButton(ActionEvent event) {
+    private void handleGenerateButton() {
         inputFile(filePath, 0);
     }
 
     /**
      * Handles the names only button
-     * @param event names only button
      */
     @FXML
-    private void handleNamesButton(ActionEvent event) {
+    private void handleNamesButton() {
         inputFile(filePath, 1);
     }
 
     /**
      * Closes the program
-     * @param event program close button
      */
     @FXML
-    private void handleCancelButton(ActionEvent event) {
+    private void handleCancelButton() {
         Stage stage = (Stage) cancelButton.getScene().getWindow();
         stage.close();
     }
 
     /**
      * Handles the event of the select file button. Updates the outputTextField to let user's know
-     * @param event file selector
      */
     @FXML
-    private void handleSelectFileButton(ActionEvent event) {
+    private void handleSelectFileButton() {
         Window owner = selectFileButton.getScene().getWindow();
 
         final FileChooser fileChooser = new FileChooser();
