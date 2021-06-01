@@ -325,6 +325,7 @@ public class HourTracker {
             XSSFWorkbook inputWorkbook = new XSSFWorkbook(inputFis);
             XSSFWorkbook outputWorkbook = new XSSFWorkbook();
 
+            System.out.println("Creating sheet with only names and shifts...");
             int sheetCount = inputWorkbook.getNumberOfSheets();
 
             //Loops through each sheet in workbook
@@ -358,6 +359,8 @@ public class HourTracker {
             }
             outputWorkbook.close();
             inputWorkbook.close();
+            System.out.println("Finished creating sheet with names only!");
+            System.out.println("File is saved in the same folder as this application.");
         }
         catch(IOException io) {
             System.out.println("Error with output file!");
