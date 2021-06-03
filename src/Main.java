@@ -47,7 +47,7 @@ public class Main extends Application {
         outputTextArea = HourTrackerController.staticOutputArea;
 
         stage.setTitle("Hour Tracker");
-        Scene scene = new Scene(root, 640, 400);
+        Scene scene = new Scene(root, 800, 600);
         stage.setScene(scene);
         stage.show();
 
