@@ -22,6 +22,9 @@ public class HourTrackerController implements Initializable {
     private Button generateNamesOnly;
 
     @FXML
+    private Button generateLunches;
+
+    @FXML
     private Button cancelButton;
 
     @FXML
@@ -33,6 +36,9 @@ public class HourTrackerController implements Initializable {
     @FXML
     private TextArea statusTextField;
 
+    /**
+     * Handles the generate button to create a sheet at the end of the workbook to track staff hours/work days
+     */
     @FXML
     private void handleGenerateButton() {
         inputFile(filePath, 0);
@@ -46,6 +52,13 @@ public class HourTrackerController implements Initializable {
         inputFile(filePath, 1);
     }
 
+    /**
+     *
+     */
+    @FXML
+    private void handleLunchesButton() {
+        //TODO
+    }
     /**
      * Closes the program
      */

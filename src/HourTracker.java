@@ -65,6 +65,38 @@ public class HourTracker {
     }
 
     /**
+     * Returns the start of the shift
+     * @param hours The String representation of the staff shift time. ie: xxxx-yyyy
+     * @return The String representation of the start of the staff shift. ie: xxxx
+     */
+    private String getShiftStart(String hours) {
+        if(hours.contains("Charge")) {
+            return "";
+        }
+        else if(hours.contains("-")) {
+            String[] hoursString = hours.split("-");
+            return hoursString[0];
+        }
+        return "";
+    }
+
+    /**
+     * Returns the end of the shift
+     * @param hours The String representation of the staff shift time. ie: xxxx-yyyy
+     * @return The String representation of the end of the staff shift. ie: yyyy
+     */
+    private String getShiftEnd(String hours) {
+        if(hours.contains("Charge")) {
+            return "";
+        }
+        else if(hours.contains("-")) {
+            String[] hoursString = hours.split("-");
+            return hoursString[1];
+        }
+        return "";
+    }
+
+    /**
      * Builds the roster map from a roster.txt file
      */
     public void buildMapFromRoster() {
@@ -366,6 +398,11 @@ public class HourTracker {
             System.out.println("Error with output file!");
             io.printStackTrace();
         }
+    }
+
+    //TODO
+    private void saveLunches() {
+
     }
 
     /**
