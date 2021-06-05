@@ -9,15 +9,15 @@ import java.util.*;
 public class HourTracker {
     private String fileName;
     private final String hoursSheetName = "Weekly Hours";
-    final static int MAX_COL = 2;
-    Map<String, StaffData> roster = new HashMap<>();
+    final static int SHIFT_HOURS = 2;   //Col that ends at the shift times
+    final static int LUNCH_HOURS = 3;   //Col that ends at the lunch times
+    Map<String, StaffData> StaffDataMap = new HashMap<>();
 
-    int dayShiftFirstRow = 0;
-    int dayShiftLastRow = 0;
-    int midShiftFirstRow = 0;
-    int midShiftLastRow = 0;
-    int nightShiftFirstRow = 0;
-    int nightShiftLastRow = 0;
+    //Words to skip on schedule
+    String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730", "", " "};
+    List<String> tabooWordsList = Arrays.asList(tabooWords);
+    String[] headerWords = {"Staff Name", "Staff", "Shift", "", " "};
+    List<String> headerWordsList = Arrays.asList(headerWords);
 
     /**
      * Empty constructor
@@ -60,6 +60,10 @@ public class HourTracker {
         }
         else {
             totalHours = 8.5;
+        }
+
+        if (totalHours > 5) {
+            totalHours -= 0.5;
         }
         return totalHours;
     }
@@ -107,7 +111,7 @@ public class HourTracker {
         try {
             Scanner rosterFileScanner = new Scanner(rosterFile);
             while(rosterFileScanner.hasNextLine()) {
-                roster.put(rosterFileScanner.nextLine(), new StaffData());
+                StaffDataMap.put(rosterFileScanner.nextLine(), new StaffData());
             }
         }
         catch(FileNotFoundException fnf) {
@@ -131,10 +135,6 @@ public class HourTracker {
 
             int sheetCount = workbook.getNumberOfSheets();
 
-            //Words to skip on schedule
-            String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730", "", " "};
-            List<String> tabooWordsList = Arrays.asList(tabooWords);
-
             System.out.println("Calculating shift hours...");
             //Loops through each sheet in workbook
             for(int i = 0; i < sheetCount; i++) {
@@ -153,22 +153,19 @@ public class HourTracker {
                     String currentStaffName = "";
 
                     //Iterates over each column
-                    while(cellIterator.hasNext() && currentColumn < MAX_COL) {
+                    while(cellIterator.hasNext() && currentColumn < SHIFT_HOURS) {
                         Cell cell = cellIterator.next();
-                        if(cell.getColumnIndex() < MAX_COL) {
+                        if(cell.getColumnIndex() < SHIFT_HOURS) {
                             if (currentColumn == 0) {
                                 currentStaffName = cell.getStringCellValue();
                             } else if (currentColumn == 1) {
                                 //Checks for names in roster and updates their hours
-                                if (roster.containsKey(currentStaffName)) {
+                                if (StaffDataMap.containsKey(currentStaffName)) {
                                     double shiftHours = calculateHoursForShift(cell.getStringCellValue());
-                                    if (shiftHours > 6) {
-                                        shiftHours -= 0.5;
-                                    }
 
                                     //double newHours = staffCurrentHours + shiftHours;
-                                    roster.get(currentStaffName).updateShiftHours(shiftHours);
-                                    roster.get(currentStaffName).addShiftDay(currentSheet.getSheetName().substring(0, 2));
+                                    StaffDataMap.get(currentStaffName).updateShiftHours(shiftHours);
+                                    StaffDataMap.get(currentStaffName).addShiftDay(currentSheet.getSheetName().substring(0, 2));
                                 }
 
                                 //Checks for empty data ("taboo words")
@@ -179,13 +176,10 @@ public class HourTracker {
                                 //Checks if staff doesn't exist and adds
                                 else {
                                     double shiftHours = calculateHoursForShift(cell.getStringCellValue());
-                                    if (shiftHours > 6) {
-                                        shiftHours -= 0.5;
-                                    }
                                     StaffData currentStaffData = new StaffData();
                                     currentStaffData.updateShiftHours(shiftHours);
                                     currentStaffData.addShiftDay(currentSheet.getSheetName().substring(0, 2));
-                                    roster.put(currentStaffName, currentStaffData);
+                                    StaffDataMap.put(currentStaffName, currentStaffData);
                                 }
                             }
                             currentColumn++;
@@ -237,8 +231,8 @@ public class HourTracker {
         dayCount.setCellValue("Number of days worked");
 
         //Updates each cell of the row with the staff data. ie: staff name, hours, days, # of days
-        Object[] rosterArray = roster.keySet().toArray();
-        for(int i = 1; i < roster.size() + 1; i++) {
+        Object[] rosterArray = StaffDataMap.keySet().toArray();
+        for(int i = 1; i < StaffDataMap.size() + 1; i++) {
             Row newRow = hoursSheet.createRow(i);
             for(int j = 0; j < 4; j++) {
                 Cell newColumnCell = newRow.createCell(j);
@@ -248,15 +242,15 @@ public class HourTracker {
                 }
                 //Staff hours
                 else if(j == 1) {
-                    newColumnCell.setCellValue(roster.get(rosterArray[i - 1].toString()).getStaffHours());
+                    newColumnCell.setCellValue(StaffDataMap.get(rosterArray[i - 1].toString()).getStaffHours());
                 }
                 //Days staff are shifted
                 else if(j == 2) {
-                    newColumnCell.setCellValue(roster.get(rosterArray[i - 1].toString()).getShiftDates());
+                    newColumnCell.setCellValue(StaffDataMap.get(rosterArray[i - 1].toString()).getShiftDates());
                 }
                 //Day count
                 else {
-                    newColumnCell.setCellValue(roster.get(rosterArray[i - 1].toString()).getDayCount());
+                    newColumnCell.setCellValue(StaffDataMap.get(rosterArray[i - 1].toString()).getDayCount());
                 }
             }
         }
@@ -373,7 +367,7 @@ public class HourTracker {
                     break;
                 }
 
-                copyToNewSheet(outputWorkbook, currentSheet, currentMiniSheet);
+                copyNamesToNewSheet(outputWorkbook, currentSheet, currentMiniSheet);
 
                 //Sets the alternating color rule for the current sheet
                 setFormatting(currentMiniSheet);
@@ -400,9 +394,201 @@ public class HourTracker {
         }
     }
 
-    //TODO
-    private void saveLunches() {
+    /**
+     * Loops through each sheet in the schedule, creates a new workbook, and fills it with staff data from schedule
+     */
+    public void saveLunches() {
+        ArrayList<LunchData> lunchDataList;
 
+        try {
+            File sourceFile = new File(fileName);
+            File scheduleLunchFile = new File("FINAL SCHEDULE - Lunch Data.xlsx");
+
+            FileInputStream inputFis = new FileInputStream(sourceFile);
+            XSSFWorkbook inputWorkbook = new XSSFWorkbook(inputFis);
+            XSSFWorkbook lunchWorkbook = new XSSFWorkbook();
+
+            System.out.println("Creating sheet with lunches, shift times, and shifted hours...");
+            lunchWorkbook.createSheet("Lunch Data");
+            XSSFSheet lunchSheet = lunchWorkbook.getSheetAt(0);
+
+            int sheetCount = inputWorkbook.getNumberOfSheets();     //Number of sheets in the input workbook
+
+            //Loops through each sheet in workbook
+            for(int i = 0; i < sheetCount; i++) {
+                XSSFSheet currentSheet = inputWorkbook.getSheetAt(i);
+
+                //Checks for hours sheet at end of workbook
+                if(currentSheet.getSheetName().equals(hoursSheetName)) {
+                    break;
+                }
+
+                //Saves the data from the current sheet to an ArrayList
+                lunchDataList = saveLunchDataToList(currentSheet);
+
+                //Copies the data from the ArrayList to the lunch sheet
+                copyLunchDataToNewSheet(lunchDataList, lunchSheet);
+
+            }
+            try (OutputStream fileOutput = new FileOutputStream(scheduleLunchFile)){
+                lunchWorkbook.write(fileOutput);
+            }
+            catch(FileNotFoundException fnf) {
+                System.out.println(fileName + " is currently open. Please close the file.");
+                return;
+            }
+            catch(Exception e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+            lunchWorkbook.close();
+            inputWorkbook.close();
+            System.out.println("Finished creating sheet with lunches, shifts, and hours!");
+            System.out.println("File is saved in the same folder as this application.");
+        }
+        catch(IOException io) {
+            System.out.println("Error with output file!");
+            io.printStackTrace();
+        }
+    }
+
+    /**
+     * Loops through a sheet and adds the staffed shifts to an arraylist in the form of LunchData.
+     * Returns the updated arraylist .
+     * @param currentSheet Current schedule for a given day, taken from the master schedule workbook
+     * @return Updated arraylist containing all staff data from daily schedule sheet
+     */
+    private ArrayList<LunchData> saveLunchDataToList(XSSFSheet currentSheet) {
+        ArrayList<LunchData> lunchDataList = new ArrayList<>();
+        String date = createDayName(currentSheet.getSheetName());
+        String staffName;
+        String shiftStart = "";
+        String shiftEnd = "";
+        String lunchStart;
+        String lunchEnd;
+        double shiftHours;
+        int currentShift;
+        currentShift = 0;
+
+        //Loops through all rows, checks for blank cells, and adds the data to an arraylist
+        for(int j = 0; j < currentSheet.getLastRowNum(); j++) {
+            Row currentRow = currentSheet.getRow(j);
+            if(currentRow != null) {        //Checks if row exists
+                if (currentRow.getCell(0) != null && !currentRow.getCell(0).getStringCellValue().equals("")) {       //Checks for un-staffed rows
+                    if(currentRow.getCell(0).getStringCellValue().contains("Mid") ||                          //Checks for mid or night shift since shift start times are different
+                            currentRow.getCell(0).getStringCellValue().contains("Night")) {
+                        currentShift++;
+                    }
+                    if (currentRow.getCell(2) != null && !currentRow.getCell(2).getStringCellValue().equals("")) {   //Checks for lunch-less rows
+                        if(!headerWordsList.contains(currentRow.getCell(0).getStringCellValue())) {           //Checks for header names/staff-less row
+                            if(currentRow.getCell(1).getStringCellValue().contains("-")) {                    //Verifies that the cell is a shift time
+                                shiftStart = getShiftStart(currentRow.getCell(1).getStringCellValue());
+                                shiftEnd = getShiftEnd(currentRow.getCell(1).getStringCellValue());
+                            }
+                            else {      //Sets times for unconventional shifts. ie: UNIT LEAD/CHARGE and accounts for different shifts
+                                switch (currentShift) {
+                                    case 0:
+                                        shiftStart = "0700";
+                                        shiftEnd = "1530";
+                                        break;
+                                    case 1:
+                                        shiftStart = "1500";
+                                        shiftEnd = "2330";
+                                        break;
+                                    case 2:
+                                        shiftStart = "2300";
+                                        shiftEnd = "0730";
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                            staffName = currentRow.getCell(0).getStringCellValue();
+                            lunchStart = getShiftStart(currentRow.getCell(2).getStringCellValue());
+                            lunchEnd = getShiftEnd(currentRow.getCell(2).getStringCellValue());
+                            shiftHours = calculateHoursForShift(currentRow.getCell(1).getStringCellValue());
+                            lunchDataList.add(new LunchData(staffName, shiftStart, shiftEnd, lunchStart, lunchEnd, shiftHours, date));
+                        }
+                    }
+                }
+            }
+        }
+        return lunchDataList;
+    }
+
+    /**
+     * Goes through LunchData arraylist and adds to the end of the lunch sheet.
+     * Creates a continuous sheet with all of the data from the arraylist
+     * @param lunchDataList ArrayList containing lunch data for all shifts during a given day
+     * @param currentLunchSheet Sheet containing all shift data (Lunch Data)
+     */
+    private void copyLunchDataToNewSheet(ArrayList<LunchData> lunchDataList, XSSFSheet currentLunchSheet) {
+        int headerCount = 7;        //Number of headers
+
+        //Creates headers for lunch data
+        if(currentLunchSheet.getLastRowNum() == 0) {
+            Row firstRow = currentLunchSheet.createRow(0);
+            for(int i = 0; i < 7; i++) {
+                firstRow.createCell(i, CellType.BLANK);
+            }
+            firstRow.getCell(0).setCellValue("Staff Name");
+            firstRow.getCell(1).setCellValue("Date");
+            firstRow.getCell(2).setCellValue("Shift Start");
+            firstRow.getCell(3).setCellValue("Lunch Start");
+            firstRow.getCell(4).setCellValue("Lunch End");
+            firstRow.getCell(5).setCellValue("Shift End");
+            firstRow.getCell(6).setCellValue("Hours");
+        }
+        //Copies data from LunchData arraylist to lunch sheet
+        for(LunchData data : lunchDataList) {
+            Row currentRow = currentLunchSheet.createRow(currentLunchSheet.getLastRowNum() + 1);
+            for(int i = 0; i < headerCount; i++) {
+                Cell currentCell = currentRow.createCell(i);
+
+                //Sets cell data corresponding to header from LunchData
+                switch(i) {
+                    case 0:
+                        currentCell.setCellValue(data.getStaffName());
+                        break;
+                    case 1:
+                        currentCell.setCellValue(data.getDate());
+                        break;
+                    case 2:
+                        currentCell.setCellValue(data.getShiftStart());
+                        break;
+                    case 3:
+                        currentCell.setCellValue(data.getLunchStart());
+                        break;
+                    case 4:
+                        currentCell.setCellValue(data.getLunchEnd());
+                        break;
+                    case 5:
+                        currentCell.setCellValue(data.getShiftEnd());
+                        break;
+                    case 6:
+                        currentCell.setCellValue(data.getShiftedHours());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes the preceding day name from the input string
+     * ie: "THUR10JUN2021" -> "10JUN2021"
+     * @param date The date that needs shortening
+     * @return The shortened version of the date without the day name
+     */
+    private String createDayName(String date) {
+        for(int i = 0; i < date.length(); i++) {
+            if(Character.isDigit(date.charAt(i))) {
+                date = date.substring(i);
+                break;
+            }
+        }
+        return date;
     }
 
     /**
@@ -412,7 +598,7 @@ public class HourTracker {
      * @param currentSheet Current sheet being copied from
      * @param currentMiniSheet New Sheet containing the data from the old sheet
      */
-    private void copyToNewSheet(XSSFWorkbook outputWorkbook, XSSFSheet currentSheet, XSSFSheet currentMiniSheet) {
+    private void copyNamesToNewSheet(XSSFWorkbook outputWorkbook, XSSFSheet currentSheet, XSSFSheet currentMiniSheet) {
         //Writes staff names (first 2 columns) to new file
         int newRow = 0;
         String cellContent;
@@ -424,7 +610,7 @@ public class HourTracker {
                 if(row.getCell(0) != null && !row.getCell(0).toString().equals("")) {
                     currentMiniSheet.createRow(newRow);
                     //Writes to new file
-                    for (int j = 0; j < MAX_COL; j++) {
+                    for (int j = 0; j < SHIFT_HOURS; j++) {
                         currentMiniSheet.getRow(newRow).createCell(j, CellType.BLANK);
                         cellContent = currentSheet.getRow(k).getCell(j).toString();
                         currentMiniSheet.getRow(newRow).getCell(j).setCellValue(cellContent);
@@ -467,11 +653,18 @@ public class HourTracker {
      * Needs to be done after copying contents from master schedule due to indexing
      */
     private void setFormatting(XSSFSheet currentSheet) {
+        //Instance variables used in tracking the rows where each shift starts and ends
+        int dayShiftFirstRow = 0;
+        int dayShiftLastRow = 0;
+        int midShiftFirstRow = 0;
+        int midShiftLastRow = 0;
+        int nightShiftFirstRow = 0;
+        int nightShiftLastRow = 0;
 
         //Iterates over all rows in current sheet to find table breakpoints
         for(int k = 0; k < currentSheet.getLastRowNum(); k++) {
             //Writes to new file
-            for (int j = 0; j < MAX_COL; j++) {
+            for (int j = 0; j < SHIFT_HOURS; j++) {
                 String cellContent = currentSheet.getRow(k).getCell(j).toString();
 
                 //Day shift header
