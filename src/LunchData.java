@@ -3,7 +3,7 @@
  */
 public class LunchData {
     private final String staffName;     //Name of staff
-    private final double shiftedHours;     //Hours shifted for the day
+    private final double shiftedHours;  //Hours shifted for the day
     private final String shiftStart;    //Start of shift in military time
     private final String shiftEnd;      //End of shift in military time
     private final String lunchStart;    //Start of lunch in military time

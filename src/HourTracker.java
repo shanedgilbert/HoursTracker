@@ -580,6 +580,11 @@ public class HourTracker {
                 }
             }
         }
+
+        //Auto-sizes columns
+        for(int i = 0; i < headerCount; i++) {
+            currentLunchSheet.autoSizeColumn(i);
+        }
     }
 
     /**

@@ -16,15 +16,6 @@ public class HourTrackerController implements Initializable {
     private String filePath = "";
 
     @FXML
-    private Button generateButton;
-
-    @FXML
-    private Button generateNamesOnly;
-
-    @FXML
-    private Button generateLunches;
-
-    @FXML
     private Button cancelButton;
 
     @FXML
@@ -53,11 +44,11 @@ public class HourTrackerController implements Initializable {
     }
 
     /**
-     *
+     * Handles the lunches only button
      */
     @FXML
     private void handleLunchesButton() {
-        //TODO
+        inputFile(filePath, 2);
     }
     /**
      * Closes the program
@@ -121,6 +112,9 @@ public class HourTrackerController implements Initializable {
             //Staff only sheet
             else if(option == 1) {
                 ht.saveNamesOnlySheets();
+            }
+            else if(option == 2) {
+                ht.saveLunches();
             }
         }
     }
