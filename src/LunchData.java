@@ -1,3 +1,6 @@
+/**
+ * Stores data relating to the staff and their shift
+ */
 public class LunchData {
     private final String staffName;     //Name of staff
     private final double shiftedHours;     //Hours shifted for the day
