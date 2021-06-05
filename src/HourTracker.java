@@ -6,6 +6,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Main class used for handling functionality for Hour Tracker
+ * Handles:
+ *  -Creating shifted days at the end of the original schedule
+ *  -Creating a separate sheet for only names and shifts
+ *  -Creating a separate sheet for tracking scheduled staff, their lunches, and shifted hours for each day
+ */
 public class HourTracker {
     private String fileName;
     private final String hoursSheetName = "Weekly Hours";
