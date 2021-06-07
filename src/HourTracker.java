@@ -1,5 +1,6 @@
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -298,24 +299,80 @@ public class HourTracker {
     }
 
     //TODO
-    public void importRosterListFromXlsx() {
+    public void importRosterListFromXlsx(String fileName) {
         try {
-            String fileName = "Staff Roster.xlsx";
             File rosterFile = new File(fileName);
 
             FileInputStream fis = new FileInputStream(rosterFile);
             XSSFWorkbook rosterWorkbook = new XSSFWorkbook(fis);
             System.out.println("Importing roster workbook...");
+            XSSFSheet rosterSheet = rosterWorkbook.getSheetAt(0);
 
+            int firstNameColIndex = getColIndex(rosterSheet, "First");
+            int lastNameColIndex = getColIndex(rosterSheet, "Last");
 
+            //Checks for valid column index
+            if(firstNameColIndex == -1 || lastNameColIndex == -1) {
+                System.out.println("Can't find first or last names");
+                return;
+            }
 
-            ArrayList<String> rosterList = new ArrayList<>();
+            //Iterate over rows and adds staff to roster array list
+            ArrayList<String> rosterList = getRosterList(rosterSheet, firstNameColIndex, lastNameColIndex);
+
         }
+        //TODO
         catch(Exception e) {
 
         }
-
     }
+
+    /**
+     * Helper method to return the index of the column containing search word
+     * @param rosterSheet Current sheet being analyzed for search word
+     * @return the int index of the column containing the search word. Returns -1 if it can't find the index
+     */
+    private int getColIndex(XSSFSheet rosterSheet, String searchWord) {
+
+        //Iterates over all rows in sheet
+        for(int i = 0; i < rosterSheet.getLastRowNum(); i++) {
+            Row currentRow = rosterSheet.getRow(i);
+
+            //Iterates over all Cells in row
+            for(int j = 0; j < currentRow.getLastCellNum() - 1; j++) {
+                Cell currentCell = currentRow.getCell(j);
+                if(currentCell.getStringCellValue().toUpperCase().contains(searchWord.toUpperCase())) {
+                    return j;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Returns an arraylist of staff names from the roster sheet
+     * @param rosterSheet Excel sheet containing the names of the staff
+     * @param firstCol Column index for first names
+     * @param lastCol Column index for last names
+     * @return The arraylist of staff names
+     */
+    private ArrayList<String> getRosterList(XSSFSheet rosterSheet, int firstCol, int lastCol) {
+        ArrayList<String> rosterList = new ArrayList<>();
+        for(int i = 0; i < rosterSheet.getLastRowNum(); i++) {
+            Row currentRow = rosterSheet.getRow(i);
+            if(currentRow != null) {
+                if(!currentRow.getCell(firstCol).getStringCellValue().contains("Staff") && !currentRow.getCell(firstCol).getStringCellValue().contains("First")) {
+                    //Retrieves the staff's full name from sheet
+                    String firstName = currentRow.getCell(firstCol).getStringCellValue();
+                    String lastName = currentRow.getCell(lastCol).getStringCellValue();
+                    String fullName = firstName + " " + lastName;
+                    rosterList.add(fullName);
+                }
+            }
+        }
+        return rosterList;
+    }
+
     /**
      * Updates the roster file
      */

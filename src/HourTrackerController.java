@@ -27,6 +27,9 @@ public class HourTrackerController implements Initializable {
     @FXML
     private TextArea statusTextField;
 
+    @FXML
+    private TextArea rosterTextField;
+
     /**
      * Handles the generate button to create a sheet at the end of the workbook to track staff hours/work days
      */
@@ -44,12 +47,14 @@ public class HourTrackerController implements Initializable {
     }
 
     /**
-     * Handles the lunches only button
+     * Handles the lunch data button
      */
     @FXML
-    private void handleLunchesButton() {
+    //TODO: Ensure that a valid roster file is input
+    private void handleGenerateLunchButton() {
         inputFile(filePath, 2);
     }
+
     /**
      * Closes the program
      */
@@ -77,6 +82,12 @@ public class HourTrackerController implements Initializable {
                     "Please be patient as the first generation takes a while.\n");
             filePath = inputFile.getAbsolutePath();
         }
+    }
+
+    @FXML
+    //TODO
+    private void handleImportRosterButton() {
+
     }
 
     /**
