@@ -18,6 +18,7 @@ import java.util.*;
 //TODO: Roster UI Buttons
 //TODO: Alert for missing lunch data
 //TODO: Alert for unformatted shift times (prevent crash)
+//TODO: Loop through row to find the column index we need
 public class HourTracker {
     private String fileName;
     private final String hoursSheetName = "Weekly Hours";
