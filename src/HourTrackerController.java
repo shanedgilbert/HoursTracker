@@ -10,7 +10,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-//TODO: Improve instructions/guidelines/add FAQ?
+//TODO: Improve instructions/guidelines/add FAQ? LETS MAKE THIS AS CONFLUENCE IN FUTURE
 public class HourTrackerController implements Initializable {
     static TextArea staticOutputArea;
     private String filePath = "";

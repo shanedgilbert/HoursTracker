@@ -13,6 +13,11 @@ import java.util.*;
  *  -Creating a separate sheet for only names and shifts
  *  -Creating a separate sheet for tracking scheduled staff, their lunches, and shifted hours for each day
  */
+
+//TODO: Roster for complete names (Lunch Data)
+//TODO: Roster UI Buttons
+//TODO: Alert for missing lunch data
+//TODO: Alert for unformatted shift times (prevent crash)
 public class HourTracker {
     private String fileName;
     private final String hoursSheetName = "Weekly Hours";
@@ -235,7 +240,7 @@ public class HourTracker {
         daysWorked.setCellValue("Days Worked");
 
         Cell dayCount = headers.createCell(3);      //Number of days worked header (4)
-        dayCount.setCellValue("Number of days worked");
+        dayCount.setCellValue("# of days worked");
 
         //Updates each cell of the row with the staff data. ie: staff name, hours, days, # of days
         Object[] rosterArray = StaffDataMap.keySet().toArray();
@@ -709,13 +714,19 @@ public class HourTracker {
         PatternFormatting blueFill = alternatingBlue.createPatternFormatting();
         blueFill.setFillBackgroundColor(IndexedColors.PALE_BLUE.getIndex());
 
-        //GET CellRangeAddress[]
-        CellRangeAddress[] dayShiftRange   = {new CellRangeAddress(dayShiftFirstRow, dayShiftLastRow, 0, 1)};
-        CellRangeAddress[] midShiftRange   = {new CellRangeAddress(midShiftFirstRow, midShiftLastRow, 0, 1)};
-        CellRangeAddress[] nightShiftRange = {new CellRangeAddress(nightShiftFirstRow, nightShiftLastRow, 0, 1)};
-        sheetFormatting.addConditionalFormatting(dayShiftRange, alternatingBlue);
-        sheetFormatting.addConditionalFormatting(midShiftRange, alternatingBlue);
-        sheetFormatting.addConditionalFormatting(nightShiftRange, alternatingBlue);
+        //Checks for empty day shift and formats the shifts with alternating rows
+        if(dayShiftFirstRow < dayShiftLastRow) {
+            CellRangeAddress[] dayShiftRange = {new CellRangeAddress(dayShiftFirstRow, dayShiftLastRow, 0, 1)};
+            sheetFormatting.addConditionalFormatting(dayShiftRange, alternatingBlue);
+        }
+        if(midShiftFirstRow < midShiftLastRow) {
+            CellRangeAddress[] midShiftRange = {new CellRangeAddress(midShiftFirstRow, midShiftLastRow, 0, 1)};
+            sheetFormatting.addConditionalFormatting(midShiftRange, alternatingBlue);
+        }
+        if(nightShiftFirstRow < nightShiftLastRow) {
+            CellRangeAddress[] nightShiftRange = {new CellRangeAddress(nightShiftFirstRow, nightShiftLastRow, 0, 1)};
+            sheetFormatting.addConditionalFormatting(nightShiftRange, alternatingBlue);
+        }
 
         //Sizes columns to fit
         //Size = 256 * character width
