@@ -19,6 +19,7 @@ import java.util.*;
 //TODO: Alert for missing lunch data
 //TODO: Alert for unformatted shift times (prevent crash)
 //TODO: Loop through row to find the column index we need
+    //Goal is to use master Roster Excel sheet
 public class HourTracker {
     private String fileName;
     private final String hoursSheetName = "Weekly Hours";
@@ -296,10 +297,29 @@ public class HourTracker {
         this.fileName = fileName;
     }
 
+    //TODO
+    public void importRosterListFromXlsx() {
+        try {
+            String fileName = "Staff Roster.xlsx";
+            File rosterFile = new File(fileName);
+
+            FileInputStream fis = new FileInputStream(rosterFile);
+            XSSFWorkbook rosterWorkbook = new XSSFWorkbook(fis);
+            System.out.println("Importing roster workbook...");
+
+
+
+            ArrayList<String> rosterList = new ArrayList<>();
+        }
+        catch(Exception e) {
+
+        }
+
+    }
     /**
      * Updates the roster file
      */
-    public void updateRosterList() {
+    public void updateRosterListFromTxt() {
         String rosterFileName = "roster.txt";
         File rosterFile = new File(rosterFileName);
         ArrayList<String> roster = new ArrayList<>();

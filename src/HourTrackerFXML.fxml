@@ -36,7 +36,6 @@
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -46,15 +45,16 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="600.0" maxWidth="800.0" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="HourTrackerController">
+<VBox maxHeight="600.0" maxWidth="800.0" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="HourTrackerController">
   <children>
     <AnchorPane maxHeight="600.0" maxWidth="800.0" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
       <children>
             <Rectangle arcHeight="5.0" fill="#2e3047" height="600.0" layoutX="400.0" smooth="false" stroke="BLACK" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" width="400.0" />
-            <GridPane layoutX="469.0" layoutY="209.0" prefHeight="38.0" prefWidth="266.0">
+            <GridPane layoutX="469.0" layoutY="198.0" prefHeight="38.0" prefWidth="266.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="200.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="200.0" />
@@ -92,14 +92,14 @@
                </stylesheets></TextArea>
             <Pane layoutX="470.0" layoutY="100.0" prefHeight="57.0" prefWidth="260.0">
                <children>
-                  <Button fx:id="selectFileButton" layoutX="75.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleSelectFileButton" prefHeight="30.0" prefWidth="110.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2e3047;" text="Select File..." textFill="#2e3047">
+                  <Button fx:id="selectFileButton" layoutX="75.0" layoutY="9.0" mnemonicParsing="false" onAction="#handleSelectFileButton" prefHeight="30.0" prefWidth="110.0" style="-fx-background-color: #3BBA9C; -fx-text-fill: #2e3047;" text="Select File..." textFill="#2e3047">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
                   </Button>
                </children>
             </Pane>
-            <TextArea id="content" editable="false" focusTraversable="false" layoutX="-1.0" layoutY="338.0" pickOnBounds="false" prefHeight="263.0" prefWidth="402.0" style="-fx-control-inner-background: #43455C; -fx-border-radius: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" styleClass="scroll-bar" text="1. Select the file you intend to analyze. &#10;&#10;Ensure it only contains 7 days for most accurate reading! However, this will work for any number of days.&#10;&#10;2. Press generate to create a sheet with staff hours for the week.&#10;&#10;3. Generated tracker can be found at the end of the input spreadsheet.&#10;&#10;4. Names Only creates a new sheet containing only the names and shift time. File can be found in this program's folder.&#10; " wrapText="true">
+            <TextArea id="content" editable="false" focusTraversable="false" layoutX="-1.0" layoutY="338.0" pickOnBounds="false" prefHeight="263.0" prefWidth="402.0" style="-fx-control-inner-background: #43455C; -fx-border-radius: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" styleClass="scroll-bar" text="1. Select the file you intend to analyze. Works on workbooks of any size.&#10;&#10;2. Press generate to create a sheet with staff hours for the week.&#10;&#10;3. Generated tracker can be found at the end of the input spreadsheet.&#10;&#10;4. Names Only creates a new sheet containing only the names and shift time. File can be found in this program's folder.&#10;&#10;5. Lunches will generate a new sheet containing shifts, lunches, and hours worked for all shifted staff. &#10;Lunches requires a roster file to maintain the most up-to-date content.&#10; " wrapText="true">
                <cursor>
                   <Cursor fx:constant="DEFAULT" />
                </cursor>
@@ -118,7 +118,7 @@
                   <Image url="@HourTrackerGrad.PNG" />
                </image>
             </ImageView>
-            <TextArea id="content" fx:id="statusTextField" editable="false" focusTraversable="false" layoutX="462.0" layoutY="157.0" pickOnBounds="false" prefHeight="45.0" prefWidth="276.0" style="-fx-border-width: 0; -fx-control-inner-background: #43455C; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" stylesheets="@content.css" text="Select your file...">
+            <TextArea id="content" fx:id="statusTextField" editable="false" focusTraversable="false" layoutX="462.0" layoutY="150.0" pickOnBounds="false" prefHeight="45.0" prefWidth="276.0" style="-fx-border-width: 0; -fx-control-inner-background: #43455C; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" stylesheets="@content.css" text="Select your file...">
                <cursor>
                   <Cursor fx:constant="DEFAULT" />
                </cursor>
@@ -128,23 +128,37 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <GridPane layoutX="511.0" layoutY="247.0" prefHeight="38.0" prefWidth="182.0">
+            <GridPane layoutX="503.0" layoutY="293.0" prefHeight="38.0" prefWidth="199.0">
                <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="200.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="10.0" prefWidth="200.0" />
                </columnConstraints>
                <rowConstraints>
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Button fx:id="generateLunches" mnemonicParsing="false" onAction="#handleLunchesButton" prefHeight="30.0" prefWidth="190.0" scaleX="0.9" scaleY="0.9" style="-fx-background-color: #b3b3b3; -fx-text-fill: #262626;" text="Lunches" textAlignment="CENTER" textFill="#2e3047" wrapText="true">
+                  <Button fx:id="importRoster" minHeight="30.0" minWidth="100.0" mnemonicParsing="false" onAction="#handleImportRosterButton" prefHeight="30.0" prefWidth="100.0" scaleX="0.9" scaleY="0.9" style="-fx-background-color: #b3b3b3; -fx-text-fill: #262626;" text="Import Roster" textAlignment="CENTER" textFill="#2e3047" wrapText="true">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+                  <Button fx:id="generateLunches" minHeight="30.0" minWidth="100.0" mnemonicParsing="false" onAction="#handleLunchesButton" prefHeight="30.0" prefWidth="100.0" scaleX="0.9" scaleY="0.9" style="-fx-background-color: #b3b3b3; -fx-text-fill: #262626;" text="Generate Data" textAlignment="CENTER" textFill="#2e3047" wrapText="true" GridPane.columnIndex="1">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
                   </Button>
                </children>
             </GridPane>
+            <Line endX="153.0" layoutX="600.0" layoutY="241.0" startX="-153.0" />
+            <TextArea id="content" fx:id="rosterTextField" editable="false" focusTraversable="false" layoutX="494.0" layoutY="250.0" pickOnBounds="false" prefHeight="38.0" prefWidth="216.0" style="-fx-border-width: 0; -fx-control-inner-background: #43455C; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-background-color: transparent, white, transparent, white; -fx-background-radius: 0;" stylesheets="@content.css" text="Select roster file...">
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
+            </TextArea>
+            <Line endX="-100.0" endY="259.0" layoutX="500.0" layoutY="340.0" startX="-100.0" startY="-1.0" />
+            <Line endX="297.0" layoutX="502.0" layoutY="339.0" startX="-100.0" />
+            <Line endX="100.0" layoutX="301.0" layoutY="339.0" startX="-301.0" />
       </children>
     </AnchorPane>
-      <Separator orientation="VERTICAL" prefHeight="200.0" />
   </children>
 </VBox>
