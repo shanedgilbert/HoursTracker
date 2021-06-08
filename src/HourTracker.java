@@ -16,12 +16,12 @@ import java.util.*;
 
 //TODO: Don't require roster
 public class HourTracker {
-    private String fileName;
-    private String rosterFileName;
-    private final String hoursSheetName = "Weekly Hours";
+    private String fileName;            //Name of the schedule file
+    private String rosterFileName;      //Name of the roster file
+    private final String hoursSheetName = "Weekly Hours";   //Name for the sheet created at the end of the schedule to contain the staff shifts
     final static int SHIFT_HOURS = 2;   //Col that ends at the shift times
     final static int LUNCH_HOURS = 3;   //Col that ends at the lunch times
-    Map<String, StaffData> StaffDataMap = new HashMap<>();
+    Map<String, StaffData> StaffDataMap = new HashMap<>();  //Map used to maintain staff hours for the scheduled time period
 
     //Words to skip on schedule
     String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730", "", " "};
@@ -76,6 +76,7 @@ public class HourTracker {
             totalHours = 8.5;
         }
 
+        //Accounts for lunches
         if (totalHours > 5) {
             totalHours -= 0.5;
         }
@@ -575,53 +576,53 @@ public class HourTracker {
         //Loops through all rows, checks for blank cells, and adds the data to an arraylist. Skips first row (date row)
         for(int j = 1; j < currentSheet.getLastRowNum(); j++) {
             Row currentRow = currentSheet.getRow(j);
-            if(currentRow != null) {        //Checks if row exists
-                if (currentRow.getCell(0) != null && !currentRow.getCell(0).getStringCellValue().equals("")) {       //Checks for un-staffed rows
-                    if(currentRow.getCell(0).getStringCellValue().contains("Mid") ||                          //Checks for mid or night shift since shift start times are different
-                            currentRow.getCell(0).getStringCellValue().contains("Night")) {
-                        currentShift++;
+            if(currentRow != null && currentRow.getCell(0) != null &&                //Checks if row exists and non-null cells
+                    currentRow.getCell(2) != null &&                                 //Checks if row contains non-null cells
+                    !currentRow.getCell(0).getStringCellValue().equals("")) {        //Checks if row contains content
+                if(currentRow.getCell(0).getStringCellValue().contains("Mid") ||                      //Checks for mid or night shift since shift start times are different
+                        currentRow.getCell(0).getStringCellValue().contains("Night")) {
+                    currentShift++;
+                }
+                else if(!headerWordsList.contains(currentRow.getCell(0).getStringCellValue())) {      //Checks for header names/staff-less row
+                    if(currentRow.getCell(1).getStringCellValue().contains("-")) {                    //Verifies that the cell is a shift time
+                        shiftStart = getShiftStart(currentRow.getCell(1).getStringCellValue());
+                        shiftEnd = getShiftEnd(currentRow.getCell(1).getStringCellValue());
                     }
-                    else if (currentRow.getCell(2) != null) {   //Checks for non-null lunch rows
-                        if(!headerWordsList.contains(currentRow.getCell(0).getStringCellValue())) {           //Checks for header names/staff-less row
-                            if(currentRow.getCell(1).getStringCellValue().contains("-")) {                    //Verifies that the cell is a shift time
-                                shiftStart = getShiftStart(currentRow.getCell(1).getStringCellValue());
-                                shiftEnd = getShiftEnd(currentRow.getCell(1).getStringCellValue());
-                            }
-                            else {      //Sets times for unconventional shifts. ie: UNIT LEAD/CHARGE and accounts for different shifts
-                                switch (currentShift) {
-                                    case 0:
-                                        shiftStart = "0700";
-                                        shiftEnd = "1530";
-                                        break;
-                                    case 1:
-                                        shiftStart = "1500";
-                                        shiftEnd = "2330";
-                                        break;
-                                    case 2:
-                                        shiftStart = "2300";
-                                        shiftEnd = "0730";
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            //Compares name from schedule with name from roster list to obtain full name
-                            ArrayList<String> rosterList = importRosterListFromXlsx();
-                            staffName = currentRow.getCell(0).getStringCellValue();
-                            for(String s : rosterList) {
-                                if(s.contains(staffName) && s.charAt(1) == staffName.charAt(1)) {
-                                    staffName = rosterList.get(rosterList.indexOf(s));
-                                }
-                                else {
-                                    staffName = getFullNameFromNickname(staffName);
-                                }
-                            }
-                            lunchStart = getShiftStart(currentRow.getCell(2).getStringCellValue());
-                            lunchEnd = getShiftEnd(currentRow.getCell(2).getStringCellValue());
-                            shiftHours = calculateHoursForShift(currentRow.getCell(1).getStringCellValue());
-                            lunchDataList.add(new LunchData(staffName, shiftStart, shiftEnd, lunchStart, lunchEnd, shiftHours, date));
+                    else {      //Sets times for unconventional shifts. ie: UNIT LEAD/CHARGE and accounts for different shifts
+                        switch (currentShift) {
+                            case 0:
+                                shiftStart = "0700";
+                                shiftEnd = "1530";
+                                break;
+                            case 1:
+                                shiftStart = "1500";
+                                shiftEnd = "2330";
+                                break;
+                            case 2:
+                                shiftStart = "2300";
+                                shiftEnd = "0730";
+                                break;
+                            default:
+                                break;
                         }
                     }
+                    //Compares name from schedule with name from roster list to obtain full name
+                    ArrayList<String> rosterList = importRosterListFromXlsx();
+                    staffName = currentRow.getCell(0).getStringCellValue();
+                    for(String s : rosterList) {
+                        //The name's second character is used to ensure that the first names match. (Very rare case)
+                        //This solves the issue of incorrectly selecting the wrong staff name when shorter names can be found in longer names.
+                        if(s.contains(staffName) && s.charAt(1) == staffName.charAt(1)) {
+                            staffName = rosterList.get(rosterList.indexOf(s));
+                        }
+                        else {
+                            staffName = getFullNameFromNickname(staffName);
+                        }
+                    }
+                    lunchStart = getShiftStart(currentRow.getCell(2).getStringCellValue());
+                    lunchEnd = getShiftEnd(currentRow.getCell(2).getStringCellValue());
+                    shiftHours = calculateHoursForShift(currentRow.getCell(1).getStringCellValue());
+                    lunchDataList.add(new LunchData(staffName, shiftStart, shiftEnd, lunchStart, lunchEnd, shiftHours, date));
                 }
             }
         }
