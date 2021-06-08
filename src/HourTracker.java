@@ -54,6 +54,10 @@ public class HourTracker {
     private double calculateHoursForShift(String hours) {
         double totalHours;
 
+        //Checks for invalid shift times
+        if(hours.contains("AM") || hours.contains("PM") || hours.contains(":")) {
+            System.out.println("Shift times are not in the correct format. Please ensure that shift time follow: 'xxxx-yyyy' in military time");
+        }
         if(hours.contains("Charge")) {
             totalHours = 8.5;
         }
@@ -576,8 +580,6 @@ public class HourTracker {
         int currentShift;
         currentShift = 0;
 
-        Map<String, String> nicknames = new HashMap<>();
-
         //Loops through all rows, checks for blank cells, and adds the data to an arraylist
         for(int j = 0; j < currentSheet.getLastRowNum(); j++) {
             Row currentRow = currentSheet.getRow(j);
@@ -587,7 +589,7 @@ public class HourTracker {
                             currentRow.getCell(0).getStringCellValue().contains("Night")) {
                         currentShift++;
                     }
-                    if (currentRow.getCell(2) != null && !currentRow.getCell(2).getStringCellValue().equals("")) {   //Checks for lunch-less rows
+                    if (currentRow.getCell(2) != null && !currentRow.getCell(2).getStringCellValue().equals("")) {   //Checks for filled lunch rows
                         if(!headerWordsList.contains(currentRow.getCell(0).getStringCellValue())) {           //Checks for header names/staff-less row
                             if(currentRow.getCell(1).getStringCellValue().contains("-")) {                    //Verifies that the cell is a shift time
                                 shiftStart = getShiftStart(currentRow.getCell(1).getStringCellValue());
@@ -622,7 +624,6 @@ public class HourTracker {
                                     staffName = getFullNameFromNickname(staffName);
                                 }
                             }
-
                             lunchStart = getShiftStart(currentRow.getCell(2).getStringCellValue());
                             lunchEnd = getShiftEnd(currentRow.getCell(2).getStringCellValue());
                             shiftHours = calculateHoursForShift(currentRow.getCell(1).getStringCellValue());
@@ -631,6 +632,11 @@ public class HourTracker {
                     }
                 }
             }
+        }
+        //Checks if lunches were entered
+        if(lunchDataList.isEmpty()) {
+            System.out.println("There are currently no lunches for this day. " +
+                    "Please ensure lunches are input in the following format: xxxx-yyyy");
         }
         return lunchDataList;
     }
@@ -654,7 +660,7 @@ public class HourTracker {
      */
     private Map<String, String> buildNicknameMap() {
         Map<String, String> nicknames = new HashMap<>();
-        addToNicknameMap(nicknames, "Nancy M.", "NANCY MENDOZA");
+        addToNicknameMap(nicknames, "NANCY M.", "NANCY MENDOZA");
         addToNicknameMap(nicknames, "JA-SAI", "JA SAI PORTER");
         addToNicknameMap(nicknames, "MONIQUE", "LETTY YBARRA");
         addToNicknameMap(nicknames, "PATY", "PATRICIA ZARATE");
@@ -675,14 +681,12 @@ public class HourTracker {
      * @param nicknames Map of nicknames
      * @param nickname Nickname being added
      * @param fullName Full name being added
-     * @return Map with new nickname set
      */
-    private Map<String, String> addToNicknameMap(Map<String, String> nicknames, String nickname, String fullName) {
+    private void addToNicknameMap(Map<String, String> nicknames, String nickname, String fullName) {
         if(!nicknames.containsKey(nickname)) {
             nicknames.put(nickname, fullName);
         }
 
-        return nicknames;
     }
 
     /**
@@ -708,6 +712,7 @@ public class HourTracker {
             firstRow.getCell(5).setCellValue("Shift End");
             firstRow.getCell(6).setCellValue("Hours");
         }
+
         //Copies data from LunchData arraylist to lunch sheet
         for(LunchData data : lunchDataList) {
             Row currentRow = currentLunchSheet.createRow(currentLunchSheet.getLastRowNum() + 1);
