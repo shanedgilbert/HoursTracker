@@ -1,3 +1,0 @@
---UI Update--
-Reduce size of JRE bundle
-FAQ - Confluence
