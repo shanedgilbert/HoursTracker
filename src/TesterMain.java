@@ -8,6 +8,5 @@ public class TesterMain {
 //        ht.saveNamesOnlySheets();
         XSSFWorkbook workbook = new XSSFWorkbook();
         HourTracker ht = new HourTracker();
-        ArrayList<String> temp = ht.importRosterListFromXlsx("Staff Roster.xlsx");
     }
 }

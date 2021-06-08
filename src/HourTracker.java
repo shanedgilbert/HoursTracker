@@ -5,6 +5,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
+import java.sql.Array;
 import java.util.*;
 
 /**
@@ -23,6 +24,7 @@ import java.util.*;
     //Goal is to use master Roster Excel sheet
 public class HourTracker {
     private String fileName;
+    private String rosterFileName;
     private final String hoursSheetName = "Weekly Hours";
     final static int SHIFT_HOURS = 2;   //Col that ends at the shift times
     final static int LUNCH_HOURS = 3;   //Col that ends at the lunch times
@@ -300,18 +302,15 @@ public class HourTracker {
 
     /**
      * Helper method used to retrieve a roster list from excel sheet
-     * @param fileName Name of the roster excel workbook
-     * @return ArrayList of Strings containing current roster
+     * @return The roster arraylist. Returns an empty arraylist if the roster file is incorrect.
      */
-    //TODO make private
-    public ArrayList<String> importRosterListFromXlsx(String fileName) {
-        ArrayList<String> rosterList = new ArrayList<>();
+    private ArrayList<String> importRosterListFromXlsx() {
+        ArrayList<String> rosterList= new ArrayList<>();
         try {
-            File rosterFile = new File(fileName);
+            File rosterFile = new File(rosterFileName);
 
             FileInputStream fis = new FileInputStream(rosterFile);
             XSSFWorkbook rosterWorkbook = new XSSFWorkbook(fis);
-            System.out.println("Importing roster workbook...");
             XSSFSheet rosterSheet = rosterWorkbook.getSheetAt(0);
 
             int firstNameColIndex = getColIndex(rosterSheet, "First");
@@ -320,14 +319,11 @@ public class HourTracker {
             //Checks for valid column index
             if(firstNameColIndex == -1 || lastNameColIndex == -1) {
                 System.out.println("Can't find first or last names. Incorrect Roster File!");
-                return rosterList;
             }
-
             else {
                 //Iterate over rows and adds staff to roster array list
                 rosterList = getRosterList(rosterSheet, firstNameColIndex, lastNameColIndex);
             }
-
         }
         catch(FileNotFoundException fnf) {
             System.out.println("File not found: " + fileName);
@@ -337,6 +333,14 @@ public class HourTracker {
             e.printStackTrace();
         }
         return rosterList;
+    }
+
+    /**
+     * Sets the roster file name
+     * @param rosterFileName Name of the roster file
+     */
+    public void setRosterFileName(String rosterFileName) {
+        this.rosterFileName = rosterFileName;
     }
 
     /**
@@ -375,7 +379,7 @@ public class HourTracker {
      */
     private ArrayList<String> getRosterList(XSSFSheet rosterSheet, int firstCol, int lastCol) {
         ArrayList<String> rosterList = new ArrayList<>();
-        for(int i = 0; i < rosterSheet.getLastRowNum(); i++) {
+        for(int i = 0; i < rosterSheet.getLastRowNum() + 1; i++) {
             Row currentRow = rosterSheet.getRow(i);
             if(currentRow != null) {
                 if(!currentRow.getCell(firstCol).getStringCellValue().contains("STAFF") && !currentRow.getCell(firstCol).getStringCellValue().contains("First")) {
@@ -387,7 +391,6 @@ public class HourTracker {
                 }
             }
         }
-        System.out.println("Finished importing roster");
         return rosterList;
     }
 
@@ -611,8 +614,16 @@ public class HourTracker {
                                         break;
                                 }
                             }
-                            //TODO compare to roster list. Check for Nicknames
+                            //Compares name from schedule with name from roster list to obtain full name
+                            ArrayList<String> rosterList = importRosterListFromXlsx();
                             staffName = currentRow.getCell(0).getStringCellValue();
+                            for(String s : rosterList) {
+                                if(s.contains(staffName)) {
+                                    staffName = rosterList.get(rosterList.indexOf(s));
+                                }
+                            }
+                            //TODO: Check nicknames. Map?
+
                             lunchStart = getShiftStart(currentRow.getCell(2).getStringCellValue());
                             lunchEnd = getShiftEnd(currentRow.getCell(2).getStringCellValue());
                             shiftHours = calculateHoursForShift(currentRow.getCell(1).getStringCellValue());

@@ -10,7 +10,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-//TODO: Improve instructions/guidelines/add FAQ? LETS MAKE THIS AS CONFLUENCE IN FUTURE
 public class HourTrackerController implements Initializable {
     static TextArea staticOutputArea;
     private String filePath = "";
@@ -114,7 +113,7 @@ public class HourTrackerController implements Initializable {
     }
 
     /**
-     *
+     * Links the staff hour analysis and staff only sheet with the generate button
      * @param fileName File extension for the Excel file we want to modify/analyze
      * @param option 0 = hour analysis. 1 = create staff only sheet
      */
@@ -141,18 +140,27 @@ public class HourTrackerController implements Initializable {
         }
     }
 
-    //TODO: Ensure that a valid roster file is input
-    private void inputRosterFile(String fileName, String rosterFileName) {
-        if(fileName == null || fileName.isEmpty() || rosterFileName == null || rosterFileName.isEmpty()) {
-            statusTextField.setText("No file selected\n" +
+    /**
+     * Links the lunch data creation with the generate lunch data button
+     * @param filePath File path of the schedule file
+     * @param rosterFilePath File path of the roster file
+     */
+    private void inputRosterFile(String filePath, String rosterFilePath) {
+        if(filePath == null || filePath.isEmpty()) {
+            statusTextField.setText("No schedule file selected\n" +
                     "Please select a file above...");
         }
-        else if(!verifyFileExtension(fileName) || !verifyFileExtension(rosterFileName)) {
+        if(rosterFilePath == null || rosterFilePath.isEmpty()) {
+            rosterTextField.setText("No roster file selected\n" +
+                    "Please select a file below...");
+        }
+        else if(!verifyFileExtension(filePath) || !verifyFileExtension(rosterFilePath)) {
             statusTextField.setText("Wrong file type!");
         }
         else {
-            HourTracker ht = new HourTracker(fileName);
-            //TODO: Handle roster
+            HourTracker ht = new HourTracker(filePath);
+            ht.setRosterFileName(rosterFilePath);
+            ht.saveLunches();
         }
     }
 
