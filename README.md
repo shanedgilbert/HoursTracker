@@ -5,9 +5,9 @@
 - [Usage](#usage)
 - [Download](#download)
 - [Developer Setup](#developer-setup)
-  -[Requirements and Tools](#requirements-and-tools)
-  -[Initial Setup](#initial-setup)
-  -[Building the Program](#building-the-program)
+    - [Requirements and Tools](#requirements-and-tools)
+    - [Initial Setup](#initial-setup)
+    - [Building the Program](#building-the-program)
 - [License](#license)
 - [Maintainer](#maintainer)
 
