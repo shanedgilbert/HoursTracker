@@ -22,10 +22,10 @@ This program aims to quickly analyze the schedule to obtain the following inform
 
 ## Usage
 *Fill this section with instructions on how to use each button/functionality*
+*Include pictures*
 
 ## Download
-*Download link. One Drive? Google Drive?*
-*Create a Release on Github*
+Releases can be found here at [Github](https://github.com/shanedgilbert/HoursTracker/releases/tag/v1.0).
 
 ## Developer Setup
 This document aims to provide information on how to set up and build the source code.
@@ -57,8 +57,10 @@ Building the application into a .jar file:
 7. Run Launch4j.
 
 ## FAQ
+*Nuances and niche cases*
 
 ## License
+*Obtain MIT license*
 
 ## Maintainer
 [@ShaneGilbert](https://github.com/shanedgilbert)
