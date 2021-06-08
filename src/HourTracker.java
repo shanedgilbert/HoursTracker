@@ -1,11 +1,9 @@
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
-import java.sql.Array;
 import java.util.*;
 
 /**
@@ -16,12 +14,9 @@ import java.util.*;
  *  -Creating a separate sheet for tracking scheduled staff, their lunches, and shifted hours for each day
  */
 
-//TODO: Roster for complete names (Lunch Data)
-//TODO: Roster UI Buttons
 //TODO: Alert for missing lunch data
 //TODO: Alert for unformatted shift times (prevent crash)
 //TODO: Loop through row to find the column index we need
-    //Goal is to use master Roster Excel sheet
 public class HourTracker {
     private String fileName;
     private String rosterFileName;
@@ -581,6 +576,8 @@ public class HourTracker {
         int currentShift;
         currentShift = 0;
 
+        Map<String, String> nicknames = new HashMap<>();
+
         //Loops through all rows, checks for blank cells, and adds the data to an arraylist
         for(int j = 0; j < currentSheet.getLastRowNum(); j++) {
             Row currentRow = currentSheet.getRow(j);
@@ -621,8 +618,10 @@ public class HourTracker {
                                 if(s.contains(staffName)) {
                                     staffName = rosterList.get(rosterList.indexOf(s));
                                 }
+                                else {
+                                    staffName = getFullNameFromNickname(staffName);
+                                }
                             }
-                            //TODO: Check nicknames. Map?
 
                             lunchStart = getShiftStart(currentRow.getCell(2).getStringCellValue());
                             lunchEnd = getShiftEnd(currentRow.getCell(2).getStringCellValue());
@@ -634,6 +633,56 @@ public class HourTracker {
             }
         }
         return lunchDataList;
+    }
+
+    /**
+     * Searches a map for the nickname key and returns the fullname value
+     * @param nickname nickname being searched for
+     * @return Full name corresponding to nickname
+     */
+    private String getFullNameFromNickname(String nickname) {
+        Map<String, String> nicknames = buildNicknameMap();
+        if(nicknames.containsKey(nickname)) {
+            return nicknames.get(nickname);
+        }
+        return nickname;
+    }
+
+    /**
+     * Builds a map with specific nicknames
+     * @return Map Keys: nicknames and Value: full names
+     */
+    private Map<String, String> buildNicknameMap() {
+        Map<String, String> nicknames = new HashMap<>();
+        addToNicknameMap(nicknames, "Nancy M.", "NANCY MENDOZA");
+        addToNicknameMap(nicknames, "JA-SAI", "JA SAI PORTER");
+        addToNicknameMap(nicknames, "MONIQUE", "LETTY YBARRA");
+        addToNicknameMap(nicknames, "PATY", "PATRICIA ZARATE");
+        addToNicknameMap(nicknames, "JASMINE C.", "JASMINE CENICEROS");
+        addToNicknameMap(nicknames, "JASMINE N.", "JASMINE NKETIAH");
+        addToNicknameMap(nicknames, "KIMIE", "KIMSOUR NIP");
+        addToNicknameMap(nicknames, "ANDREA D.", "ANDREA DOUGLAS");
+        addToNicknameMap(nicknames, "ANDREA R.", "ANDREA RAZO");
+        addToNicknameMap(nicknames, "NANCY L.", "NANCY LOPEZ");
+        addToNicknameMap(nicknames, "JENA", "JINJOO YANG");
+        addToNicknameMap(nicknames, "SUNNY", "SUNINT MADAN");
+
+        return nicknames;
+    }
+
+    /**
+     * Adds new entries to the nickname map. Key: Nickname, Value: Full Name
+     * @param nicknames Map of nicknames
+     * @param nickname Nickname being added
+     * @param fullName Full name being added
+     * @return Map with new nickname set
+     */
+    private Map<String, String> addToNicknameMap(Map<String, String> nicknames, String nickname, String fullName) {
+        if(!nicknames.containsKey(nickname)) {
+            nicknames.put(nickname, fullName);
+        }
+
+        return nicknames;
     }
 
     /**
