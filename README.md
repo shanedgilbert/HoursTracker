@@ -25,6 +25,7 @@ This program aims to quickly analyze the schedule to obtain the following inform
 
 ## Download
 *Download link. One Drive? Google Drive?*
+*Create a Release on Github*
 
 ## Developer Setup
 This document aims to provide information on how to set up and build the source code.
@@ -38,9 +39,22 @@ This build utilizes the following:
 - JRE 1.8.0+ (for bundling)
 
 ### Initial Setup
-
+In order to run the application:
+1. Import Java JDK, JavaFX, and Apache POI.
+2. Run 'HourTrackerExe.java'.
 
 ### Building the Program
+Building the application into a .jar file:
+1. Compile 'HourTrackerExe.java'.
+2. Navigate: Build > Build Artifacts > Build.
+3. The .jar file will be located under /out/artifacts/Main_java_jar/Main.java.jar.
+
+*Optional*
+4. Open Launch4j.
+5. Open the settings located here: /settings/HourTracker.xml.
+6. Tweak the settings as fit. **Note:** Ensure that the bundled jre is located within the output directory.
+   Ensure directories are correct.
+7. Run Launch4j.
 
 ## FAQ
 
