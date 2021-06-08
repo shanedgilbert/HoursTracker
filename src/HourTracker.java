@@ -14,7 +14,7 @@ import java.util.*;
  *  -Creating a separate sheet for tracking scheduled staff, their lunches, and shifted hours for each day
  */
 
-//TODO: Loop through row to find the column index we need
+//TODO: Don't require roster
 public class HourTracker {
     private String fileName;
     private String rosterFileName;
@@ -26,7 +26,7 @@ public class HourTracker {
     //Words to skip on schedule
     String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730", "", " "};
     List<String> tabooWordsList = Arrays.asList(tabooWords);
-    String[] headerWords = {"Staff Name", "Staff", "Shift", "", " "};
+    String[] headerWords = {"Staff Name", "Staff", "Shift", "", " ", "[", "]"};
     List<String> headerWordsList = Arrays.asList(headerWords);
 
     /**
@@ -88,10 +88,7 @@ public class HourTracker {
      * @return The String representation of the start of the staff shift. ie: xxxx
      */
     private String getShiftStart(String hours) {
-        if(hours.contains("Charge")) {
-            return "";
-        }
-        else if(hours.contains("-")) {
+        if(hours.contains("-")) {
             String[] hoursString = hours.split("-");
             return hoursString[0];
         }
@@ -104,10 +101,7 @@ public class HourTracker {
      * @return The String representation of the end of the staff shift. ie: yyyy
      */
     private String getShiftEnd(String hours) {
-        if(hours.contains("Charge")) {
-            return "";
-        }
-        else if(hours.contains("-")) {
+        if(hours.contains("-")) {
             String[] hoursString = hours.split("-");
             return hoursString[1];
         }
@@ -578,8 +572,8 @@ public class HourTracker {
         int currentShift;
         currentShift = 0;
 
-        //Loops through all rows, checks for blank cells, and adds the data to an arraylist
-        for(int j = 0; j < currentSheet.getLastRowNum(); j++) {
+        //Loops through all rows, checks for blank cells, and adds the data to an arraylist. Skips first row (date row)
+        for(int j = 1; j < currentSheet.getLastRowNum(); j++) {
             Row currentRow = currentSheet.getRow(j);
             if(currentRow != null) {        //Checks if row exists
                 if (currentRow.getCell(0) != null && !currentRow.getCell(0).getStringCellValue().equals("")) {       //Checks for un-staffed rows
@@ -587,7 +581,7 @@ public class HourTracker {
                             currentRow.getCell(0).getStringCellValue().contains("Night")) {
                         currentShift++;
                     }
-                    if (currentRow.getCell(2) != null && !currentRow.getCell(2).getStringCellValue().equals("")) {   //Checks for filled lunch rows
+                    else if (currentRow.getCell(2) != null) {   //Checks for non-null lunch rows
                         if(!headerWordsList.contains(currentRow.getCell(0).getStringCellValue())) {           //Checks for header names/staff-less row
                             if(currentRow.getCell(1).getStringCellValue().contains("-")) {                    //Verifies that the cell is a shift time
                                 shiftStart = getShiftStart(currentRow.getCell(1).getStringCellValue());
@@ -615,7 +609,7 @@ public class HourTracker {
                             ArrayList<String> rosterList = importRosterListFromXlsx();
                             staffName = currentRow.getCell(0).getStringCellValue();
                             for(String s : rosterList) {
-                                if(s.contains(staffName)) {
+                                if(s.contains(staffName) && s.charAt(1) == staffName.charAt(1)) {
                                     staffName = rosterList.get(rosterList.indexOf(s));
                                 }
                                 else {
@@ -670,6 +664,8 @@ public class HourTracker {
         addToNicknameMap(nicknames, "NANCY L.", "NANCY LOPEZ");
         addToNicknameMap(nicknames, "JENA", "JINJOO YANG");
         addToNicknameMap(nicknames, "SUNNY", "SUNINT MADAN");
+        addToNicknameMap(nicknames,"MARTIN", "MARTIN NUNEZ");
+        addToNicknameMap(nicknames, "FRANCES", "MARY-FRANCES SALONGA");
 
         return nicknames;
     }
