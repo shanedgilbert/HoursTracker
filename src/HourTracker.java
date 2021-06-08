@@ -298,8 +298,14 @@ public class HourTracker {
         this.fileName = fileName;
     }
 
-    //TODO
-    public void importRosterListFromXlsx(String fileName) {
+    /**
+     * Helper method used to retrieve a roster list from excel sheet
+     * @param fileName Name of the roster excel workbook
+     * @return ArrayList of Strings containing current roster
+     */
+    //TODO make private
+    public ArrayList<String> importRosterListFromXlsx(String fileName) {
+        ArrayList<String> rosterList = new ArrayList<>();
         try {
             File rosterFile = new File(fileName);
 
@@ -313,18 +319,24 @@ public class HourTracker {
 
             //Checks for valid column index
             if(firstNameColIndex == -1 || lastNameColIndex == -1) {
-                System.out.println("Can't find first or last names");
-                return;
+                System.out.println("Can't find first or last names. Incorrect Roster File!");
+                return rosterList;
             }
 
-            //Iterate over rows and adds staff to roster array list
-            ArrayList<String> rosterList = getRosterList(rosterSheet, firstNameColIndex, lastNameColIndex);
+            else {
+                //Iterate over rows and adds staff to roster array list
+                rosterList = getRosterList(rosterSheet, firstNameColIndex, lastNameColIndex);
+            }
 
         }
-        //TODO
+        catch(FileNotFoundException fnf) {
+            System.out.println("File not found: " + fileName);
+        }
         catch(Exception e) {
-
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
+        return rosterList;
     }
 
     /**
@@ -341,8 +353,13 @@ public class HourTracker {
             //Iterates over all Cells in row
             for(int j = 0; j < currentRow.getLastCellNum() - 1; j++) {
                 Cell currentCell = currentRow.getCell(j);
-                if(currentCell.getStringCellValue().toUpperCase().contains(searchWord.toUpperCase())) {
-                    return j;
+
+                //Checks for null cells
+                if(currentCell != null) {
+                    //Checks for cells that match header
+                    if (currentCell.getStringCellValue().toUpperCase().contains(searchWord.toUpperCase())) {
+                        return j;
+                    }
                 }
             }
         }
@@ -361,7 +378,7 @@ public class HourTracker {
         for(int i = 0; i < rosterSheet.getLastRowNum(); i++) {
             Row currentRow = rosterSheet.getRow(i);
             if(currentRow != null) {
-                if(!currentRow.getCell(firstCol).getStringCellValue().contains("Staff") && !currentRow.getCell(firstCol).getStringCellValue().contains("First")) {
+                if(!currentRow.getCell(firstCol).getStringCellValue().contains("STAFF") && !currentRow.getCell(firstCol).getStringCellValue().contains("First")) {
                     //Retrieves the staff's full name from sheet
                     String firstName = currentRow.getCell(firstCol).getStringCellValue();
                     String lastName = currentRow.getCell(lastCol).getStringCellValue();
@@ -370,6 +387,7 @@ public class HourTracker {
                 }
             }
         }
+        System.out.println("Finished importing roster");
         return rosterList;
     }
 
@@ -593,6 +611,7 @@ public class HourTracker {
                                         break;
                                 }
                             }
+                            //TODO compare to roster list. Check for Nicknames
                             staffName = currentRow.getCell(0).getStringCellValue();
                             lunchStart = getShiftStart(currentRow.getCell(2).getStringCellValue());
                             lunchEnd = getShiftEnd(currentRow.getCell(2).getStringCellValue());

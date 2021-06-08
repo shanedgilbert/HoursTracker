@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
 public class HourTrackerController implements Initializable {
     static TextArea staticOutputArea;
     private String filePath = "";
+    private String rosterFilePath = "";
 
     @FXML
     private Button cancelButton;
@@ -50,9 +51,8 @@ public class HourTrackerController implements Initializable {
      * Handles the lunch data button
      */
     @FXML
-    //TODO: Ensure that a valid roster file is input
     private void handleGenerateLunchButton() {
-        inputFile(filePath, 2);
+        inputRosterFile(filePath, rosterFilePath);
     }
 
     /**
@@ -65,7 +65,7 @@ public class HourTrackerController implements Initializable {
     }
 
     /**
-     * Handles the event of the select file button. Updates the outputTextField to let user's know
+     * Handles the event of the select file button. Updates the outputTextField to let user know.
      */
     @FXML
     private void handleSelectFileButton() {
@@ -84,10 +84,24 @@ public class HourTrackerController implements Initializable {
         }
     }
 
+    /**
+     * Handles the event of importing roster.
+     */
     @FXML
-    //TODO
     private void handleImportRosterButton() {
+        Window owner = selectFileButton.getScene().getWindow();
 
+        final FileChooser fileChooser = new FileChooser();
+        File inputFile = fileChooser.showOpenDialog(owner);
+
+        if(inputFile != null) {
+            //Updates status field with current file
+            rosterTextField.setText("Current file: " + inputFile.getName());
+            outputTextField.setText(outputTextField.getText() + "Roster file selected.\n" +
+                    "Press 'Select File' if a schedule has not already been selected.\n" +
+                    "Press 'Generate Data' to create lunch data for the input schedule.\n");
+            rosterFilePath = inputFile.getAbsolutePath();
+        }
     }
 
     /**
@@ -124,9 +138,21 @@ public class HourTrackerController implements Initializable {
             else if(option == 1) {
                 ht.saveNamesOnlySheets();
             }
-            else if(option == 2) {
-                ht.saveLunches();
-            }
+        }
+    }
+
+    //TODO: Ensure that a valid roster file is input
+    private void inputRosterFile(String fileName, String rosterFileName) {
+        if(fileName == null || fileName.isEmpty() || rosterFileName == null || rosterFileName.isEmpty()) {
+            statusTextField.setText("No file selected\n" +
+                    "Please select a file above...");
+        }
+        else if(!verifyFileExtension(fileName) || !verifyFileExtension(rosterFileName)) {
+            statusTextField.setText("Wrong file type!");
+        }
+        else {
+            HourTracker ht = new HourTracker(fileName);
+            //TODO: Handle roster
         }
     }
 
