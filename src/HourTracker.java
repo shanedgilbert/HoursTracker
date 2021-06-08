@@ -14,8 +14,6 @@ import java.util.*;
  *  -Creating a separate sheet for tracking scheduled staff, their lunches, and shifted hours for each day
  */
 
-//TODO: Alert for missing lunch data
-//TODO: Alert for unformatted shift times (prevent crash)
 //TODO: Loop through row to find the column index we need
 public class HourTracker {
     private String fileName;
