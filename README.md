@@ -28,23 +28,36 @@ This tool allows users to analyze a schedule and perform several functions to ga
 ### Functionality:
 - **Import (Step 1)** 
 In order to perform any of the following functions, the schedule needs to be imported.
-  ![Import Schedule](/img/select-file.png)
+  
+![Import Schedule](/img/select-file.png)
 
 - **Hour Tracker**
 Tracks staff across the time period of the input schedule. Calculates their total shifted hours for the time period, shifted days, and number of shifted days.
-   Creates a sheet at the end of the input workbook containing the corresponding data
-  ![Generates Hours in Schedule](/img/generate.png)
+   Creates a sheet at the end of the input workbook containing the corresponding data.
+  
+![Generates Hours in Schedule](/img/generate.png)
+
+The created sheet is found at the end of the imported schedule.
    
 - **Names Only**
 Creates a new Excel workbook containing the same days as the input schedule. Copies over the staff and their shift times ONLY.
-  ![Generates the Names Only Sheet](/img/names-only.png)
+  
+![Generates the Names Only Sheet](/img/names-only.png)
+
+Creates a new Excel document located in the program folder containing the generated Names Only sheet, ready to be sent out.
 
 - **Lunch Data**
 Creates a new Excel workbook containing all staff shifted throughout the input schedule, 
    their shift start, shift end, lunch in/out (if input into input schedule), and their shift length in hours. 
    Optionally takes in a staff roster Excel workbook which is used to gather full names.
-  ![Imports the Staff Roster](/img/import-roster.png)
-  ![Generates the Lunch Data](/img/generate-data.png)
+
+*Optional Roster Import*
+
+![Imports the Staff Roster](/img/import-roster.png)
+ 
+![Generates the Lunch Data](/img/generate-data.png)
+
+Creates a new Excel document located in the program folder containing the generated lunch data.
 
 ## Download
 Releases can be found here at [Github](https://github.com/shanedgilbert/HoursTracker/releases/tag/v1.0).
