@@ -24,6 +24,12 @@ This program aims to quickly analyze the schedule to obtain the following inform
 *Fill this section with instructions on how to use each button/functionality*
 *Include pictures*
 
+1. Hour Tracker
+   
+2. Names Only
+
+3. Lunch Data
+
 ## Download
 Releases can be found here at [Github](https://github.com/shanedgilbert/HoursTracker/releases/tag/v1.0).
 
@@ -60,7 +66,7 @@ Building the application into a .jar file:
 *Nuances and niche cases*
 
 ## License
-*Obtain MIT license*
+MIT License Copyright (c) 2021 Shane Gilbert
 
 ## Maintainer
 [@ShaneGilbert](https://github.com/shanedgilbert)
