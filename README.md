@@ -10,6 +10,10 @@ Schedule staffing tool used for shift analysis and schedule building.
     - [Initial Setup](#initial-setup)
     - [Building the Program](#building-the-program)
 - [FAQ](#faq)
+    - [Program freezes and takes a while to run](#program-freezes-and-takes-a-while-to-run)
+    - [The total hours are calculated incorrectly](#the-total-hours-are-calculated-incorrectly)
+    - [None of the functions work](#none-of-the-functions-work)
+    - [Lunch Data doesn't include lunch shifts](#lunch-data-doesnt-include-lunch-shifts)
 - [License](#license)
 - [Maintainer](#maintainer)
 
@@ -92,10 +96,22 @@ Building the application into a .jar file:
 7. Run Launch4j.
 
 ## FAQ
-*Nuances and niche cases*
+
+### Program freezes and takes a while to run
+The program is running thousands of concurrent calculations. Give it a minute to complete.
+
+### The total hours are calculated incorrectly
+Ensure that the shifts on the imported schedule follow xxxx-yyyy military time and have no typos (such as 2303 instead of 2330).
+
+### None of the functions work
+Make sure the imported schedule is the master schedule following the WCCT schedule format and that the times follow military time. 
+
+### Lunch Data doesn't include lunch shifts
+Lunch shifts have to be manually input into the master schedule following the xxxx-yyyy military time format.
 
 ## License
 MIT License Copyright (c) 2021 Shane Gilbert
 
 ## Maintainer
 [@ShaneGilbert](https://github.com/shanedgilbert)
+
