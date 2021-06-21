@@ -299,6 +299,11 @@ public class HourTracker {
      */
     private ArrayList<String> importRosterListFromXlsx() {
         ArrayList<String> rosterList= new ArrayList<>();
+
+        //No selected roster file
+        if(rosterFileName.equals("")) {
+            return rosterList;
+        }
         try {
             File rosterFile = new File(rosterFileName);
 

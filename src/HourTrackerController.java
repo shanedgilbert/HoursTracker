@@ -150,11 +150,11 @@ public class HourTrackerController implements Initializable {
             statusTextField.setText("No schedule file selected\n" +
                     "Please select a file above...");
         }
-        if(rosterFilePath == null || rosterFilePath.isEmpty()) {
-            rosterTextField.setText("No roster file selected\n" +
-                    "Please select a file below...");
-        }
-        else if(!verifyFileExtension(filePath) || !verifyFileExtension(rosterFilePath)) {
+//        if(rosterFilePath == null || rosterFilePath.isEmpty()) {
+//            rosterTextField.setText("No roster file selected\n" +
+//                    "Please select a file below...");
+//        }
+        if(!verifyFileExtension(filePath)) {
             statusTextField.setText("Wrong file type!");
         }
         else {
