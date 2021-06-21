@@ -659,21 +659,7 @@ public class HourTracker {
      */
     private Map<String, String> buildNicknameMap() {
         Map<String, String> nicknames = new HashMap<>();
-        addToNicknameMap(nicknames, "NANCY M.", "NANCY MENDOZA");
-        addToNicknameMap(nicknames, "JA-SAI", "JA SAI PORTER");
-        addToNicknameMap(nicknames, "MONIQUE", "LETTY YBARRA");
-        addToNicknameMap(nicknames, "PATY", "PATRICIA ZARATE");
-        addToNicknameMap(nicknames, "JASMINE C.", "JASMINE CENICEROS");
-        addToNicknameMap(nicknames, "JASMINE N.", "JASMINE NKETIAH");
-        addToNicknameMap(nicknames, "KIMIE", "KIMSOUR NIP");
-        addToNicknameMap(nicknames, "ANDREA D.", "ANDREA DOUGLAS");
-        addToNicknameMap(nicknames, "ANDREA R.", "ANDREA RAZO");
-        addToNicknameMap(nicknames, "NANCY L.", "NANCY LOPEZ");
-        addToNicknameMap(nicknames, "JENA", "JINJOO YANG");
-        addToNicknameMap(nicknames, "SUNNY", "SUNINT MADAN");
-        addToNicknameMap(nicknames, "MARTIN", "MARTIN NUNEZ");
-        addToNicknameMap(nicknames, "FRANCES", "MARY-FRANCES SALONGA");
-        addToNicknameMap(nicknames, "JENNIFER B.", "JENNIFER BROWN");
+        //TODO: Import an external file for nicknames
 
         return nicknames;
     }
