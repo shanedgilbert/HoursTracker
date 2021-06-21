@@ -12,6 +12,7 @@ import java.util.*;
  *  -Creating shifted days at the end of the original schedule
  *  -Creating a separate sheet for only names and shifts
  *  -Creating a separate sheet for tracking scheduled staff, their lunches, and shifted hours for each day
+ * License: MIT License
  */
 
 //TODO: Don't require roster
@@ -665,8 +666,9 @@ public class HourTracker {
         addToNicknameMap(nicknames, "NANCY L.", "NANCY LOPEZ");
         addToNicknameMap(nicknames, "JENA", "JINJOO YANG");
         addToNicknameMap(nicknames, "SUNNY", "SUNINT MADAN");
-        addToNicknameMap(nicknames,"MARTIN", "MARTIN NUNEZ");
+        addToNicknameMap(nicknames, "MARTIN", "MARTIN NUNEZ");
         addToNicknameMap(nicknames, "FRANCES", "MARY-FRANCES SALONGA");
+        addToNicknameMap(nicknames, "JENNIFER B.", "JENNIFER BROWN");
 
         return nicknames;
     }
