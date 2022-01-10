@@ -15,7 +15,6 @@ import java.util.*;
  * License: MIT License
  */
 
-//TODO: Don't require roster
 public class HourTracker {
     private String fileName;            //Name of the schedule file
     private String rosterFileName;      //Name of the roster file
@@ -54,10 +53,10 @@ public class HourTracker {
         double totalHours;
 
         //Checks for invalid shift times
-        if(hours.contains("AM") || hours.contains("PM") || hours.contains(":")) {
+        if(hours.contains(":")) {
             System.out.println("Shift times are not in the correct format. Please ensure that shift time follow: 'xxxx-yyyy' in military time");
         }
-        if(hours.contains("Charge")) {
+        if(hours.contains("Lead")) {
             totalHours = 8.5;
         }
         else if(hours.contains("-")) {
@@ -186,10 +185,10 @@ public class HourTracker {
                                 //Checks if staff doesn't exist and adds
                                 else {
                                     double shiftHours = calculateHoursForShift(cell.getStringCellValue());
-                                    StaffData currentStaffData = new StaffData();
-                                    currentStaffData.updateShiftHours(shiftHours);
-                                    currentStaffData.addShiftDay(currentSheet.getSheetName().substring(0, 2));
-                                    StaffDataMap.put(currentStaffName, currentStaffData);
+                                    StaffData currentStaffDataOne = new StaffData();
+                                    currentStaffDataOne.updateShiftHours(shiftHours);
+                                    currentStaffDataOne.addShiftDay(currentSheet.getSheetName().substring(0, 2));
+                                    StaffDataMap.put(currentStaffName, currentStaffDataOne);
                                 }
                             }
                             currentColumn++;
