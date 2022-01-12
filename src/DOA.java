@@ -2,12 +2,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -148,7 +146,60 @@ public class DOA {
 
     //TODO
     private void saveDOAAnalysisAsSheet(XSSFWorkbook workbook) {
+        System.out.println("Saving DOA Analysis as Excel sheet to current workbook");
 
+        //Remove the DOA analysis sheet if it already exists
+        if(workbook.getSheet(doaSheetName) != null) {
+            workbook.removeSheetAt(workbook.getSheetIndex(doaSheetName));
+        }
+
+        //Creates new DOA sheet
+        XSSFSheet doaSheet = workbook.createSheet(doaSheetName);
+
+        //Creates header for table
+        Row headers = doaSheet.createRow(0);
+        Cell staffNames = headers.createCell(0);    //Name header (1)
+        staffNames.setCellValue("Name");
+
+        Cell conflictDays = headers.createCell(1);   //Conflict days header (2)
+        conflictDays.setCellValue("Conflict Days");
+
+        Cell studyNames = headers.createCell(2);    //Study names header (3)
+        studyNames.setCellValue("Study Names");
+
+        //Updates each cell of the row with the staff data. ie: staff name, conflict days, study names
+        //TODO: get data from map
+        Object[] doaStatusArray = doaStatusMap.keySet().toArray();
+        for(int i = 1; i < doaStatusMap.size() + 1; i++) {
+            Row newRow = doaSheet.createRow(i);
+            for(int j = 0; j < 3; j++) {
+                Cell newColumnCell = newRow.createCell(j);
+                //Staff names
+                if(j == 0) {
+                    newColumnCell.setCellValue();
+                }
+                //Staff hours
+                else if(j == 1) {
+                    newColumnCell.setCellValue();
+                }
+                //Days staff are shifted
+                else if(j == 2) {
+                    newColumnCell.setCellValue();
+                }
+            }
+        }
+        try (OutputStream fileOutput = new FileOutputStream(scheduleFileName)){
+            workbook.write(fileOutput);
+        }
+        catch(FileNotFoundException fnf) {
+            System.out.println(scheduleFileName + " is currently open. Please close the file to save hours sheet.");
+            return;
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        System.out.println("Sheet saved as '" + scheduleFileName + "'");
     }
 
     /**

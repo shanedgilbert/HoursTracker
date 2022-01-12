@@ -13,4 +13,15 @@ public class DOAStatus {
     public void addStudy(String day, String studyName) {
         studies.put(day, studyName);
     }
+
+    //TODO: return the string: days with conflicts (from map)
+    public String getDays() {
+
+    }
+
+    //TODO: return the string: studies (from map)
+    public String getStudies() {
+
+    }
+
 }
