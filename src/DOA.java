@@ -21,8 +21,8 @@ import java.util.*;
  */
 public class DOA {
     //Instance variables
-    private final String fileName;
-    private String doaFileName;
+    private final String scheduleFileName;
+    private final String doaFileName;
     private final String doaSheetName = "DOA Analysis";
     final static int STUDY_COLUMN = 13;
     Map<String, DOAStatus> doaStatusMap = new HashMap<>();
@@ -37,31 +37,34 @@ public class DOA {
      * Constructor to set the file name
      */
     public DOA() {
-        fileName = "";
+        scheduleFileName = "";
+        doaFileName = "";
     }
 
     /**
      * Overloaded constructor to set fileName
-     * @param fileName name of the xlsx file
+     * @param scheduleFileName name of the schedule xlsx file
+     * @param doaFileName name of the DOA xlsx file
      */
-    public DOA(String fileName) {
-        this.fileName = fileName;
+    public DOA(String scheduleFileName, String doaFileName) {
+        this.scheduleFileName = scheduleFileName;
+        this.doaFileName = doaFileName;
     }
 
     /**
-     * Reads in the Excel file and returns it as a workbook object
+     * Reads in the Excel schedule file and returns it as a workbook object
      * @return The workbook object representing the xlsx workbook
      */
-    private XSSFWorkbook inputFile() {
+    private XSSFWorkbook inputFile(String fileName) {
         System.out.println("Searching for file...");
-        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFWorkbook Workbook = new XSSFWorkbook();
         try {
             File inputFile = new File(fileName);
             FileInputStream fis = new FileInputStream(inputFile);
-            workbook = new XSSFWorkbook(fis);
+            Workbook = new XSSFWorkbook(fis);
 
             System.out.println("File found");
-            System.out.println("Importing workbook...");
+            System.out.println("Importing " + fileName + "...");
         }
         catch(FileNotFoundException fnf) {
             System.out.println("File not found: " + fileName);
@@ -69,31 +72,30 @@ public class DOA {
         catch(IOException ioe) {
             System.out.println(ioe.getMessage());
         }
-        System.out.println("Finished DOA Analysis!");
-        return workbook;
+        return Workbook;
     }
 
     /**
      * Analyzes the workbook object by iterating through each sheet and checking if each staff is delegated to their assigned study
-     * @param workbook The xlsx workbook object being analyzed
      */
-    private void analyzeWorkbook(XSSFWorkbook workbook) {
+    private void analyzeScheduleWorkbook() {
+        XSSFWorkbook scheduleWorkbook = inputFile(scheduleFileName);
         try {
-            int sheetCount = workbook.getNumberOfSheets();
+            int sheetCount = scheduleWorkbook.getNumberOfSheets();
 
             //Loops through each sheet in workbook
             for (int i = 0; i < sheetCount; i++) {
-                Sheet currentSheet = workbook.getSheetAt(i);                    //Current sheet
+                Sheet currentSheet = scheduleWorkbook.getSheetAt(i);            //Current sheet
 
                 //Checks for hours sheet at end of workbook
                 if (currentSheet.getSheetName().equals(doaSheetName)) {
                     break;
                 }
                 HashMap<Short, String> studyMap = saveStudies(currentSheet);    //Map of studies
-                readSheet(currentSheet, studyMap);                              //Analyzes each sheet for staff delegation
+                readScheduleSheet(currentSheet, studyMap);                              //Analyzes each sheet for staff delegation
             }
-            saveDOAAnalysisAsSheet(workbook);                                   //Saves a report at the end of the workbook
-            workbook.close();
+            saveDOAAnalysisAsSheet(scheduleWorkbook);                           //Saves a report at the end of the workbook
+            scheduleWorkbook.close();
         }
         catch(Exception e) {
             System.out.println(e.getMessage());
@@ -102,7 +104,13 @@ public class DOA {
     }
 
     //TODO
-    private void readSheet(Sheet currentSheet, HashMap<Short, String> studyMap) {
+    private void analyzeDOAWorkbook() {
+        XSSFWorkbook doaWorkbook = inputFile(doaFileName);
+        Sheet currentSheet = doaWorkbook.getSheetAt(0);
+    }
+
+    //TODO
+    private void readScheduleSheet(Sheet currentSheet, HashMap<Short, String> studyMap) {
 
         //Iterates over all rows in current sheet
         for(Row row : currentSheet) {
