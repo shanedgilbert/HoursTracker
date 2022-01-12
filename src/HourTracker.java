@@ -595,20 +595,20 @@ public class HourTracker {
                     }
                     else {      //Sets times for unconventional shifts. ie: UNIT LEAD/CHARGE and accounts for different shifts
                         switch (currentShift) {
-                            case 0:
+                            case 0 -> {
                                 shiftStart = "0700";
                                 shiftEnd = "1530";
-                                break;
-                            case 1:
+                            }
+                            case 1 -> {
                                 shiftStart = "1500";
                                 shiftEnd = "2330";
-                                break;
-                            case 2:
+                            }
+                            case 2 -> {
                                 shiftStart = "2300";
                                 shiftEnd = "0730";
-                                break;
-                            default:
-                                break;
+                            }
+                            default -> {
+                            }
                         }
                     }
                     //Compares name from schedule with name from roster list to obtain full name
@@ -640,7 +640,7 @@ public class HourTracker {
     }
 
     /**
-     * Searches a map for the nickname key and returns the fullname value
+     * Searches a map for the nickname key and returns the full name value
      * @param nickname nickname being searched for
      * @return Full name corresponding to nickname
      */
@@ -707,30 +707,16 @@ public class HourTracker {
                 Cell currentCell = currentRow.createCell(i);
 
                 //Sets cell data corresponding to header from LunchData
-                switch(i) {
-                    case 0:
-                        currentCell.setCellValue(data.getStaffName());
-                        break;
-                    case 1:
-                        currentCell.setCellValue(data.getDate());
-                        break;
-                    case 2:
-                        currentCell.setCellValue(data.getShiftStart());
-                        break;
-                    case 3:
-                        currentCell.setCellValue(data.getLunchStart());
-                        break;
-                    case 4:
-                        currentCell.setCellValue(data.getLunchEnd());
-                        break;
-                    case 5:
-                        currentCell.setCellValue(data.getShiftEnd());
-                        break;
-                    case 6:
-                        currentCell.setCellValue(data.getShiftedHours());
-                        break;
-                    default:
-                        break;
+                switch (i) {
+                    case 0 -> currentCell.setCellValue(data.getStaffName());
+                    case 1 -> currentCell.setCellValue(data.getDate());
+                    case 2 -> currentCell.setCellValue(data.getShiftStart());
+                    case 3 -> currentCell.setCellValue(data.getLunchStart());
+                    case 4 -> currentCell.setCellValue(data.getLunchEnd());
+                    case 5 -> currentCell.setCellValue(data.getShiftEnd());
+                    case 6 -> currentCell.setCellValue(data.getShiftedHours());
+                    default -> {
+                    }
                 }
             }
         }
