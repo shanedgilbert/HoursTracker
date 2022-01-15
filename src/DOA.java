@@ -101,13 +101,13 @@ public class DOA {
         }
     }
 
-    //TODO
+    //TODO: read the DOA file and save data for analysis
     private void analyzeDOAWorkbook() {
         XSSFWorkbook doaWorkbook = inputFile(doaFileName);
         Sheet currentSheet = doaWorkbook.getSheetAt(0);
     }
 
-    //TODO
+    //TODO: check if there are conflicting studies by comparing DOA to staffed procedures
     private void readScheduleSheet(Sheet currentSheet, HashMap<Short, String> studyMap) {
 
         //Iterates over all rows in current sheet
@@ -144,7 +144,10 @@ public class DOA {
         }
     }
 
-    //TODO
+    /**
+     * Saves the study conflicts with staff as an additional sheet at the end of the workbook
+     * @param workbook Excel workbook being analyzed for study/DOA conflicts
+     */
     private void saveDOAAnalysisAsSheet(XSSFWorkbook workbook) {
         System.out.println("Saving DOA Analysis as Excel sheet to current workbook");
 
@@ -168,7 +171,6 @@ public class DOA {
         studyNames.setCellValue("Study Names");
 
         //Updates each cell of the row with the staff data. ie: staff name, conflict days, study names
-        //TODO: get data from map
         Object[] doaStatusArray = doaStatusMap.keySet().toArray();
         for(int i = 1; i < doaStatusMap.size() + 1; i++) {
             Row newRow = doaSheet.createRow(i);
@@ -176,15 +178,15 @@ public class DOA {
                 Cell newColumnCell = newRow.createCell(j);
                 //Staff names
                 if(j == 0) {
-                    newColumnCell.setCellValue();
+                    newColumnCell.setCellValue(doaStatusArray[i - 1].toString());
                 }
-                //Staff hours
+                //Conflict days
                 else if(j == 1) {
-                    newColumnCell.setCellValue();
+                    newColumnCell.setCellValue(doaStatusMap.get(doaStatusArray[i - 1].toString()).getDays());
                 }
-                //Days staff are shifted
-                else if(j == 2) {
-                    newColumnCell.setCellValue();
+                //Study names
+                else {
+                    newColumnCell.setCellValue(doaStatusMap.get(doaStatusArray[i - 1].toString()).getStudies());
                 }
             }
         }
