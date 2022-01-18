@@ -1,7 +1,4 @@
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -85,12 +82,12 @@ public class DOA {
             for (int i = 0; i < sheetCount; i++) {
                 Sheet currentSheet = scheduleWorkbook.getSheetAt(i);            //Current sheet
 
-                //Checks for hours sheet at end of workbook
+                //Checks for DOA sheet at end of workbook
                 if (currentSheet.getSheetName().equals(doaSheetName)) {
                     break;
                 }
-                HashMap<Short, String> studyMap = saveStudies(currentSheet);    //Map of studies
-                readScheduleSheet(currentSheet, studyMap);                              //Analyzes each sheet for staff delegation
+                HashMap<Color, String> studyMap = saveStudies(currentSheet);    //Map of studies
+                readScheduleSheet(currentSheet, studyMap);                      //Analyzes each sheet for staff delegation
             }
             saveDOAAnalysisAsSheet(scheduleWorkbook);                           //Saves a report at the end of the workbook
             scheduleWorkbook.close();
@@ -108,7 +105,7 @@ public class DOA {
     }
 
     //TODO: check if there are conflicting studies by comparing DOA to staffed procedures
-    private void readScheduleSheet(Sheet currentSheet, HashMap<Short, String> studyMap) {
+    private void readScheduleSheet(Sheet currentSheet, HashMap<Color, String> studyMap) {
 
         //Iterates over all rows in current sheet
         for(Row row : currentSheet) {
@@ -131,7 +128,7 @@ public class DOA {
                         break;
                     }
                     //Gets the study name for the current procedure
-                    short procedureColor = currentCell.getCellStyle().getFillBackgroundColor();
+                    Color procedureColor = currentCell.getCellStyle().getFillForegroundColorColor();
                     String procedureStudyName = "";
                     if(studyMap.containsKey(procedureColor)) {
                         procedureStudyName = studyMap.get(procedureColor);
@@ -210,32 +207,32 @@ public class DOA {
      * @param currentSheet Current sheet of the workbook with studies and colors
      * @return The mapping of study names to cell color
      */
-    private HashMap<Short, String> saveStudies(Sheet currentSheet) {
-        HashMap<Short, String> studyMap = new HashMap<>();
+    private HashMap<Color, String> saveStudies(Sheet currentSheet) {
+        HashMap<Color, String> studyMap = new HashMap<>();
 
         //Iterates over all rows in current sheet
         for(Row row : currentSheet) {
-            Iterator<Cell> cellIterator = row.cellIterator();
             String studyName;       //Name of the study
-            short studyColor;       //Cell color of the study
-            int currentCol = 0;     //Column containing list of studies
+            Color studyColor;       //Cell color of the study
 
-            while (cellIterator.hasNext()) {
-                Cell currentCell = cellIterator.next();
-                if(currentCol == 13 && currentCell != null && currentCell.getCellType() != CellType.BLANK) {
-                    studyName = currentCell.getStringCellValue();
+            Cell currentCell = row.getCell(12);
+            if(currentCell != null && currentCell.getCellType() != CellType.BLANK) {
+                studyName = currentCell.getStringCellValue();                               //Study name
 
-                    //Checks for header row
-                    if (studyName.contains("In House")) {
-                        break;
-                    }
-                    studyColor = currentCell.getCellStyle().getFillBackgroundColor();   //Saves study cell background color
-                    studyMap.put(studyColor, studyName);                                //Saves study name and color to map
+                //Checks for header row
+                if (!studyName.contains("In House")) {
+                    studyColor = currentCell.getCellStyle().getFillForegroundColorColor();  //Saves study cell background color
+                    studyMap.put(studyColor, studyName);                                    //Saves study name and color to map
                 }
-                currentCol++;
             }
         }
         return studyMap;
     }
+    public static void main(String[] args) {
+        String schedule = "schedule.xlsx";
+        String tracker = "tracker.xlsx";
+        DOA test = new DOA(schedule, tracker);
 
+        test.analyzeScheduleWorkbook();
+    }
 }
