@@ -23,7 +23,8 @@ public class DOA {
     Map<String, DOAStatus> doaStatusMap = new HashMap<>();
 
     //Words to skip on schedule
-    String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730", "", " "};
+    String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730",
+            "FLOAT", "Fishbowl", "TEAM LEAD", "MEALS", "", " "};
     List<String> tabooWordsList = Arrays.asList(tabooWords);
     String[] headerWords = {"Staff Name", "Staff", "Shift", "", " ", "[", "]"};
     List<String> headerWordsList = Arrays.asList(headerWords);
@@ -109,12 +110,14 @@ public class DOA {
 
         //Iterates over all rows in current sheet
         for(Row row : currentSheet) {
-            Iterator<Cell> cellIterator = row.cellIterator();
             String currentStaffName;
-            int currentCol = 0;
-            while (cellIterator.hasNext()) {
-                Cell currentCell = cellIterator.next();
-                if(currentCol == 0) {                   //Staff column
+            for(int i = 0; i < 8; i++) {
+                if(i == 0) {                            //Staff column
+                    Cell currentCell = row.getCell(i);
+                    //Checks for blank cells
+                    if(currentCell == null || currentCell.getCellType() == CellType.BLANK || Objects.equals(currentCell.getStringCellValue(), "")) {
+                        break;
+                    }
                     currentStaffName = currentCell.getStringCellValue();
 
                     //Checks for non-staff cells
@@ -122,21 +125,23 @@ public class DOA {
                         break;
                     }
                 }
-                if(currentCol > 2) {                    //Procedure columns
+                if(i > 2) {                             //Procedure columns
+                    Cell currentCell = row.getCell(i);
                     //Checks for blank cell
-                    if(currentCell == null || currentCell.getCellType() == CellType.BLANK) {
+                    if(currentCell == null || currentCell.getCellType() == CellType.BLANK || Objects.equals(currentCell.getStringCellValue(), "")) {
                         break;
                     }
-                    //Gets the study name for the current procedure
-                    Color procedureColor = currentCell.getCellStyle().getFillForegroundColorColor();
-                    String procedureStudyName = "";
-                    if(studyMap.containsKey(procedureColor)) {
-                        procedureStudyName = studyMap.get(procedureColor);
+                    if(!tabooWordsList.contains(currentCell.getStringCellValue().replaceFirst("\\s++$", ""))) {
+                        //Gets the study name for the current procedure
+                        Color procedureColor = currentCell.getCellStyle().getFillForegroundColorColor();
+                        String procedureStudyName;
+                        if (studyMap.containsKey(procedureColor)) {
+                            procedureStudyName = studyMap.get(procedureColor);
+                        }
                     }
                     //TODO: Check if staff is delegated
 
                 }
-                currentCol++;
             }
         }
     }
@@ -215,6 +220,7 @@ public class DOA {
             String studyName;       //Name of the study
             Color studyColor;       //Cell color of the study
 
+            //In house studies
             Cell currentCell = row.getCell(12);
             if(currentCell != null && currentCell.getCellType() != CellType.BLANK) {
                 studyName = currentCell.getStringCellValue();                               //Study name
@@ -222,7 +228,23 @@ public class DOA {
                 //Checks for header row
                 if (!studyName.contains("In House")) {
                     studyColor = currentCell.getCellStyle().getFillForegroundColorColor();  //Saves study cell background color
-                    studyMap.put(studyColor, studyName);                                    //Saves study name and color to map
+                    if(!studyMap.containsKey(studyColor)) {
+                        studyMap.put(studyColor, studyName);                                //Saves study name and color to map
+                    }
+                }
+            }
+
+            //OPV
+            currentCell = row.getCell(17);
+            if(currentCell != null && currentCell.getCellType() != CellType.BLANK) {
+                studyName = currentCell.getStringCellValue();                               //Study name
+
+                //Checks for header row
+                if (!studyName.contains("OPV") || !studyName.contains("Protocol")) {
+                    studyColor = currentCell.getCellStyle().getFillForegroundColorColor();  //Saves study cell background color
+                    if(!studyMap.containsKey(studyColor)) {
+                        studyMap.put(studyColor, studyName);                                //Saves study name and color to map
+                    }
                 }
             }
         }
