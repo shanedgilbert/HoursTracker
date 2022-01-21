@@ -101,8 +101,38 @@ public class DOA {
 
     //TODO: read the DOA file and save data for analysis
     private void analyzeDOAWorkbook() {
+        ArrayList<String> studiesList = importStudies();
         XSSFWorkbook doaWorkbook = inputFile(doaFileName);
-        Sheet currentSheet = doaWorkbook.getSheetAt(0);
+        Map<Integer, String> studyColumnMap = new HashMap<>();      //Tracks the study columns
+
+        Sheet currentSheet = doaWorkbook.getSheetAt(0);       //Current sheet. There is only 1 sheet that matters to us (first)
+        for (Row row : currentSheet) {
+            if(row.getRowNum() == 0) {                              //First row represents column names
+                for(int i = 3; i < row.getLastCellNum(); i++) {
+
+                }
+            }
+        }
+    }
+
+    /**
+     * Import the study file to create an arraylist of studies
+     * @return The arraylist of studies
+     */
+    private ArrayList<String> importStudies() {
+        String studiesFileName = "studies.txt";
+        File studiesFile = new File(studiesFileName);
+        ArrayList<String> studiesList = new ArrayList<>();
+        try {
+            Scanner input = new Scanner(studiesFile);
+            while(input.hasNextLine()) {
+                studiesList.add(input.nextLine());
+            }
+        }
+        catch(FileNotFoundException fnf) {
+            System.out.println(fnf.getMessage());
+        }
+        return studiesList;
     }
 
     //TODO: check if there are conflicting studies by comparing DOA to staffed procedures
@@ -255,6 +285,5 @@ public class DOA {
         String tracker = "tracker.xlsx";
         DOA test = new DOA(schedule, tracker);
 
-        test.analyzeScheduleWorkbook();
     }
 }
