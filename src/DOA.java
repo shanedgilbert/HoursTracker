@@ -103,14 +103,33 @@ public class DOA {
     private void analyzeDOAWorkbook() {
         ArrayList<String> studiesList = importStudies();
         XSSFWorkbook doaWorkbook = inputFile(doaFileName);
-        Map<Integer, String> studyColumnMap = new HashMap<>();      //Tracks the study columns
+        Map<String, List<Integer>> studyColumnMap = new HashMap<>();      //Tracks the study columns
 
-        Sheet currentSheet = doaWorkbook.getSheetAt(0);       //Current sheet. There is only 1 sheet that matters to us (first)
+        Sheet currentSheet = doaWorkbook.getSheetAt(0);             //Current sheet. There is only 1 sheet that matters to us (first)
         for (Row row : currentSheet) {
-            if(row.getRowNum() == 0) {                              //First row represents column names
+            if(row.getRowNum() == 0) {                                    //First row represents column names
                 for(int i = 3; i < row.getLastCellNum(); i++) {
+                    String studyName = row.getCell(i).getStringCellValue();
 
+                    Iterator<String> studyIterator = studiesList.iterator();
+                    while(studyIterator.hasNext()) {                      //Iterates over the study list
+                        String study = studyIterator.next();
+                        if(studyName.contains(study)) {                   //Finds the study matching from the study list and saves the column index
+                            studyColumnMap.putIfAbsent(study, new ArrayList<Integer>());
+                            studyColumnMap.get(study).add(i);             //Adds the column index to the study key if the name matches
+                            break;
+                        }
+                        if(!studyIterator.hasNext()) {                    //Studies that aren't found in the list
+                            System.out.println(studyName + " does not exist in the 'studies.txt' list!");
+                        }
+                    }
                 }
+                for (Map.Entry<String, List<Integer>> entry : studyColumnMap.entrySet()) {
+                    System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+                }
+            }
+            else {                                                        //Staff rows
+
             }
         }
     }
@@ -284,6 +303,6 @@ public class DOA {
         String schedule = "schedule.xlsx";
         String tracker = "tracker.xlsx";
         DOA test = new DOA(schedule, tracker);
-
+        test.analyzeDOAWorkbook();
     }
 }
