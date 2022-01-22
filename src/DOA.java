@@ -3,6 +3,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -21,7 +22,7 @@ public class DOA {
     private final String doaSheetName = "DOA Analysis";
     final static int STUDY_COLUMN = 13;
     Map<String, DOAConflicts> doaConflictsMap = new HashMap<>();
-    Map<String, List<String>> doaStaffStatusMap = new HashMap<>();
+    Map<String, ArrayList<String>> doaStaffStatusMap = new HashMap<>();
 
     //Words to skip on schedule
     String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730",
@@ -105,8 +106,8 @@ public class DOA {
      * Reads the DOA Tracker and saves the staff to and their studies to a map
      * @return Returns the map with staff and their delegated studies
      */
-    private Map<String, List<String>> analyzeDOAWorkbook() {
-        Map<String, List<String>> delegatedStaffStudiesMap = new HashMap<>();
+    private Map<String, ArrayList<String>> analyzeDOAWorkbook() {
+        Map<String, ArrayList<String>> delegatedStaffStudiesMap = new HashMap<>();
         ArrayList<String> studiesList = importStudies();
         XSSFWorkbook doaWorkbook = inputFile(doaFileName);
         Map<Integer, String> studyColumnMap = new HashMap<>();            //Tracks the study columns
@@ -200,10 +201,9 @@ public class DOA {
         return studiesList;
     }
 
-    //TODO: check if there are conflicting studies by comparing DOA to staffed procedures
     private void readScheduleSheet(Sheet currentSheet, HashMap<Color, String> studyMap) {
         //Iterates over all rows in current sheet
-        Map<String, List<String>> staffShiftedStudies = new HashMap<>();
+        Map<String, ArrayList<String>> staffShiftedStudies = new HashMap<>();
         ArrayList<String> studiesList = importStudies();
         for(Row row : currentSheet) {
             String currentStaffName = "";
@@ -257,10 +257,64 @@ public class DOA {
                 }
             }
         }
-        //TODO: Compare arraylists
-        for (Map.Entry<String, List<String>> entry : staffShiftedStudies.entrySet())
-            System.out.println("Key = " + entry.getKey() +
-                    ", Value = " + entry.getValue());
+        System.out.println("sheet name: " + currentSheet.getSheetName());
+
+        staffShiftedStudies = getSimplifiedStaffName(staffShiftedStudies);      //Simplifies and normalizes the names for comparison
+        doaStaffStatusMap = getSimplifiedStaffName(doaStaffStatusMap);
+        String[] staffArray = staffShiftedStudies.keySet().toArray(new String[0]);
+        for(String name : doaStaffStatusMap.keySet()) {
+            String matchingName = getMatchingSubstring(name, staffArray);       //Search the array for matching names
+            if(!Objects.equals(matchingName, "")) {                          //Matching names found
+                ArrayList<String> shiftedStudies = staffShiftedStudies.get(matchingName);
+                shiftedStudies.removeAll(doaStaffStatusMap.get(name));
+                System.out.println("staff: " + name + ", studies: " + shiftedStudies);
+            }
+        }
+    }
+
+    /**
+     * Searches the input array for the input string and returns the matching string
+     * @param inputString string being searched for in the array
+     * @param stringArray array being searched
+     * @return matching string. "" if nothing if no match is found
+     */
+    private String getMatchingSubstring(String inputString, String[] stringArray) {
+        Optional<String> foundString = Arrays.stream(stringArray).parallel().filter(inputString::contains).findAny();
+        return foundString.orElse("");
+    }
+
+    /**
+     * Simplifies and normalizes the staff names for comparison. Reduces the names to either first name only or first name with last initial
+     * @param inputMap The map with a first name key set that needs to reduced
+     * @return new map with reduced names key set
+     */
+    private Map<String, ArrayList<String>> getSimplifiedStaffName(Map<String, ArrayList<String>> inputMap) {
+        Map<String, ArrayList<String>> tempMap = new HashMap<>();
+        for(String staffName : inputMap.keySet()) {
+            ArrayList<String> names = new ArrayList<>(Arrays.asList(staffName.split(" ")));
+            names = removeSpace(names);
+            if (names.size() > 1) {
+                String tempName;
+                tempName = names.get(0) + " " + names.get(1).charAt(0);
+                tempMap.putIfAbsent(tempName, inputMap.get(staffName));
+            }
+            else {
+                tempMap.put(staffName, inputMap.get(staffName));
+            }
+        }
+        return tempMap;
+    }
+
+    /**
+     * Removes all spaces from arraylist
+     * @param stringList arraylist with spaces
+     * @return arraylist without spaces
+     */
+    private ArrayList<String> removeSpace(ArrayList<String> stringList) {
+        while(stringList.contains("")) {
+            stringList.remove("");
+        }
+        return stringList;
     }
 
     /**
