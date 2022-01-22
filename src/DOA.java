@@ -117,8 +117,9 @@ public class DOA {
                 for(int cellNum = 3; cellNum < row.getLastCellNum(); cellNum++) {
                     String studyName = row.getCell(cellNum).getStringCellValue();
 
+                    //Iterates over the study list to find the base name of the study
                     Iterator<String> studyIterator = studiesList.iterator();
-                    while(studyIterator.hasNext()) {                      //Iterates over the study list
+                    while(studyIterator.hasNext()) {
                         String study = studyIterator.next();
                         if(studyName.contains(study)) {                   //Finds the study matching from the study list and saves the column index
                             studyColumnMap.put(cellNum, study);
@@ -201,15 +202,15 @@ public class DOA {
 
     //TODO: check if there are conflicting studies by comparing DOA to staffed procedures
     private void readScheduleSheet(Sheet currentSheet, HashMap<Color, String> studyMap) {
-
         //Iterates over all rows in current sheet
+        Map<String, List<String>> staffShiftedStudies = new HashMap<>();
+        ArrayList<String> studiesList = importStudies();
         for(Row row : currentSheet) {
-            String currentStaffName;
+            String currentStaffName = "";
             for(int i = 0; i < 8; i++) {
-                if(i == 0) {                            //Staff column
+                if(i == 0) {                                //Staff column
                     Cell currentCell = row.getCell(i);
-                    //Checks for blank cells
-                    if(currentCell == null || currentCell.getCellType() == CellType.BLANK || Objects.equals(currentCell.getStringCellValue(), "")) {
+                    if(checkForEmptyCell(currentCell)) {    //Checks for blank cells
                         break;
                     }
                     currentStaffName = currentCell.getStringCellValue();
@@ -219,25 +220,47 @@ public class DOA {
                         break;
                     }
                 }
-                if(i > 2) {                             //Procedure columns
+                if(i > 2) {                                 //Procedure columns
                     Cell currentCell = row.getCell(i);
-                    //Checks for blank cell
-                    if(currentCell == null || currentCell.getCellType() == CellType.BLANK || Objects.equals(currentCell.getStringCellValue(), "")) {
+                    String procedureStudyName = "";
+
+                    if(checkForEmptyCell(currentCell)) {    //Checks for blank cell
                         break;
                     }
+                    //Gets the study name for the current procedure
                     if(!tabooWordsList.contains(currentCell.getStringCellValue().replaceFirst("\\s++$", ""))) {
-                        //Gets the study name for the current procedure
                         Color procedureColor = currentCell.getCellStyle().getFillForegroundColorColor();
-                        String procedureStudyName;
-                        if (studyMap.containsKey(procedureColor)) {
-                            procedureStudyName = studyMap.get(procedureColor);
+                        if (studyMap.containsKey(procedureColor)) {                 //Checks if the color represents a study
+                            procedureStudyName = studyMap.get(procedureColor);      //Retrieves the study name from its color
                         }
                     }
-                    //TODO: Check if staff is delegated. use importStudies() for study names
 
+                    if(!procedureStudyName.equals("")) {
+                        //Iterates over the study list to find the base name of the study
+                        Iterator<String> studyIterator = studiesList.iterator();
+                        while (studyIterator.hasNext()) {
+                            String study = studyIterator.next();
+                            if (procedureStudyName.contains(study)) {                    //Finds the study matching from the study list and saves the column index
+                                procedureStudyName = study;
+                                break;
+                            }
+                            if (!studyIterator.hasNext()) {                              //Studies that aren't found in the list
+                                System.out.println(procedureStudyName + " does not exist in the 'studies.txt' list!");
+                            }
+                        }
+
+                        staffShiftedStudies.putIfAbsent(currentStaffName, new ArrayList<>());
+                        if (!staffShiftedStudies.get(currentStaffName).contains(procedureStudyName)) {   //Checks if the study is already on the list
+                            staffShiftedStudies.get(currentStaffName).add(procedureStudyName);
+                        }
+                    }
                 }
             }
         }
+        //TODO: Compare arraylists
+        for (Map.Entry<String, List<String>> entry : staffShiftedStudies.entrySet())
+            System.out.println("Key = " + entry.getKey() +
+                    ", Value = " + entry.getValue());
     }
 
     /**
@@ -260,7 +283,7 @@ public class DOA {
         Cell staffNames = headers.createCell(0);    //Name header (1)
         staffNames.setCellValue("Name");
 
-        Cell conflictDays = headers.createCell(1);   //Conflict days header (2)
+        Cell conflictDays = headers.createCell(1);  //Conflict days header (2)
         conflictDays.setCellValue("Conflict Days");
 
         Cell studyNames = headers.createCell(2);    //Study names header (3)
@@ -348,6 +371,6 @@ public class DOA {
         String schedule = "schedule.xlsx";
         String tracker = "tracker.xlsx";
         DOA test = new DOA(schedule, tracker);
-        test.analyzeDOAWorkbook();
+        test.analyzeScheduleWorkbook();
     }
 }
