@@ -46,6 +46,7 @@ public class DOA {
     public DOA(String scheduleFileName, String doaFileName) {
         this.scheduleFileName = scheduleFileName;
         this.doaFileName = doaFileName;
+        doaStaffStatusMap = analyzeDOAWorkbook();
     }
 
     /**
@@ -100,8 +101,12 @@ public class DOA {
         }
     }
 
-    //TODO: read the DOA file and save data for analysis
-    private void analyzeDOAWorkbook() {
+    /**
+     * Reads the DOA Tracker and saves the staff to and their studies to a map
+     * @return Returns the map with staff and their delegated studies
+     */
+    private Map<String, List<String>> analyzeDOAWorkbook() {
+        Map<String, List<String>> delegatedStaffStudiesMap = new HashMap<>();
         ArrayList<String> studiesList = importStudies();
         XSSFWorkbook doaWorkbook = inputFile(doaFileName);
         Map<Integer, String> studyColumnMap = new HashMap<>();            //Tracks the study columns
@@ -116,7 +121,7 @@ public class DOA {
                     while(studyIterator.hasNext()) {                      //Iterates over the study list
                         String study = studyIterator.next();
                         if(studyName.contains(study)) {                   //Finds the study matching from the study list and saves the column index
-                            studyColumnMap.put(cellNum, studyName);
+                            studyColumnMap.put(cellNum, study);
                             break;
                         }
                         if(!studyIterator.hasNext()) {                    //Studies that aren't found in the list
@@ -125,21 +130,23 @@ public class DOA {
                     }
                 }
             }
-            else if(!checkForEmptyRow(row)) {                              //Staff rows
+
+            //Checks which staff are delegated for all studies
+            else if(!checkForEmptyRow(row)) {                                           //Staff rows
                 String name = row.getCell(0).getStringCellValue() + " " + row.getCell(1).getStringCellValue();
                 for(int cellNum = 3; cellNum < row.getLastCellNum(); cellNum++) {
                     Cell currentCell = row.getCell(cellNum);
-                    if(!checkForEmptyCell(currentCell)) {
+                    if(!checkForEmptyCell(currentCell)) {                               //Checks for empty cells
                         String studyName = studyColumnMap.get(cellNum);
-                        doaStaffStatusMap.putIfAbsent(name, new ArrayList<>());
-                        doaStaffStatusMap.get(name).add(studyName);
+                        delegatedStaffStudiesMap.putIfAbsent(name, new ArrayList<>());
+                        if(!delegatedStaffStudiesMap.get(name).contains(studyName)) {   //Checks if the study is already on the list
+                            delegatedStaffStudiesMap.get(name).add(studyName);
+                        }
                     }
                 }
             }
         }
-        for(Map.Entry<String, List<String>> entry : doaStaffStatusMap.entrySet()) {
-            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-        }
+        return delegatedStaffStudiesMap;
     }
 
     /**
