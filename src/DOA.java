@@ -200,6 +200,12 @@ public class DOA {
         return studiesList;
     }
 
+    /**
+     * Reads in the schedule sheet and the staff delegation map to cross-reference.
+     * Verifies that scheduled staff is delegated for their assigned study
+     * @param currentSheet Daily schedule sheet
+     * @param studyMap Map of staff and their delegated studies
+     */
     private void readScheduleSheet(Sheet currentSheet, HashMap<Color, String> studyMap) {
         //Iterates over all rows in current sheet
         Map<String, ArrayList<String>> staffShiftedStudies = new HashMap<>();
@@ -267,6 +273,7 @@ public class DOA {
                 ArrayList<String> shiftedStudies = staffShiftedStudies.get(matchingName);
                 shiftedStudies.removeAll(doaStaffStatusMap.get(name));
                 System.out.println("staff: " + name + ", studies: " + shiftedStudies);
+                //TODO: (save sheet name as day and add the studies to a list)
             }
         }
     }
@@ -320,6 +327,7 @@ public class DOA {
      * Saves the study conflicts with staff as an additional sheet at the end of the workbook
      * @param workbook Excel workbook being analyzed for study/DOA conflicts
      */
+    //TODO: (save sheet name as day and add the studies to a list)
     private void saveDOAAnalysisAsSheet(XSSFWorkbook workbook) {
         System.out.println("Saving DOA Analysis as Excel sheet to current workbook");
 
