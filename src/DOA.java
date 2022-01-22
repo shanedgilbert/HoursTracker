@@ -20,7 +20,8 @@ public class DOA {
     private final String doaFileName;
     private final String doaSheetName = "DOA Analysis";
     final static int STUDY_COLUMN = 13;
-    Map<String, DOAStatus> doaStatusMap = new HashMap<>();
+    Map<String, DOAConflicts> doaConflictsMap = new HashMap<>();
+    Map<String, List<String>> doaStaffStatusMap = new HashMap<>();
 
     //Words to skip on schedule
     String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730",
@@ -103,20 +104,19 @@ public class DOA {
     private void analyzeDOAWorkbook() {
         ArrayList<String> studiesList = importStudies();
         XSSFWorkbook doaWorkbook = inputFile(doaFileName);
-        Map<String, List<Integer>> studyColumnMap = new HashMap<>();      //Tracks the study columns
+        Map<Integer, String> studyColumnMap = new HashMap<>();            //Tracks the study columns
 
         Sheet currentSheet = doaWorkbook.getSheetAt(0);             //Current sheet. There is only 1 sheet that matters to us (first)
         for (Row row : currentSheet) {
             if(row.getRowNum() == 0) {                                    //First row represents column names
-                for(int i = 3; i < row.getLastCellNum(); i++) {
-                    String studyName = row.getCell(i).getStringCellValue();
+                for(int cellNum = 3; cellNum < row.getLastCellNum(); cellNum++) {
+                    String studyName = row.getCell(cellNum).getStringCellValue();
 
                     Iterator<String> studyIterator = studiesList.iterator();
                     while(studyIterator.hasNext()) {                      //Iterates over the study list
                         String study = studyIterator.next();
                         if(studyName.contains(study)) {                   //Finds the study matching from the study list and saves the column index
-                            studyColumnMap.putIfAbsent(study, new ArrayList<Integer>());
-                            studyColumnMap.get(study).add(i);             //Adds the column index to the study key if the name matches
+                            studyColumnMap.put(cellNum, studyName);
                             break;
                         }
                         if(!studyIterator.hasNext()) {                    //Studies that aren't found in the list
@@ -124,14 +124,52 @@ public class DOA {
                         }
                     }
                 }
-                for (Map.Entry<String, List<Integer>> entry : studyColumnMap.entrySet()) {
-                    System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+            }
+            else if(!checkForEmptyRow(row)) {                              //Staff rows
+                String name = row.getCell(0).getStringCellValue() + " " + row.getCell(1).getStringCellValue();
+                for(int cellNum = 3; cellNum < row.getLastCellNum(); cellNum++) {
+                    Cell currentCell = row.getCell(cellNum);
+                    if(!checkForEmptyCell(currentCell)) {
+                        String studyName = studyColumnMap.get(cellNum);
+                        doaStaffStatusMap.putIfAbsent(name, new ArrayList<>());
+                        doaStaffStatusMap.get(name).add(studyName);
+                    }
                 }
             }
-            else {                                                        //Staff rows
+        }
+        for(Map.Entry<String, List<String>> entry : doaStaffStatusMap.entrySet()) {
+            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+        }
+    }
 
+    /**
+     * Checks for empty rows
+     * @param row Row being checked
+     * @return True if the row is empty. False if the row contains content
+     */
+    private boolean checkForEmptyRow(Row row) {
+        if(row == null) {
+            return true;
+        }
+        if(row.getLastCellNum() <= 0) {
+            return true;
+        }
+        for(int cellNum = row.getFirstCellNum(); cellNum < row.getLastCellNum(); cellNum++) {
+            Cell cell = row.getCell(cellNum);
+            if(cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
             }
         }
+        return true;
+    }
+
+    /**
+     * Returns true if the cell is empty. Returns false if the cell contains content
+     * @param cell Cell being analyzed
+     * @return Boolean status of content within cell
+     */
+    private boolean checkForEmptyCell(Cell cell) {
+        return cell == null || cell.getCellType() == CellType.BLANK;
     }
 
     /**
@@ -188,7 +226,7 @@ public class DOA {
                             procedureStudyName = studyMap.get(procedureColor);
                         }
                     }
-                    //TODO: Check if staff is delegated
+                    //TODO: Check if staff is delegated. use importStudies() for study names
 
                 }
             }
@@ -222,8 +260,8 @@ public class DOA {
         studyNames.setCellValue("Study Names");
 
         //Updates each cell of the row with the staff data. ie: staff name, conflict days, study names
-        Object[] doaStatusArray = doaStatusMap.keySet().toArray();
-        for(int i = 1; i < doaStatusMap.size() + 1; i++) {
+        Object[] doaStatusArray = doaConflictsMap.keySet().toArray();
+        for(int i = 1; i < doaConflictsMap.size() + 1; i++) {
             Row newRow = doaSheet.createRow(i);
             for(int j = 0; j < 3; j++) {
                 Cell newColumnCell = newRow.createCell(j);
@@ -233,11 +271,11 @@ public class DOA {
                 }
                 //Conflict days
                 else if(j == 1) {
-                    newColumnCell.setCellValue(doaStatusMap.get(doaStatusArray[i - 1].toString()).getDays());
+                    newColumnCell.setCellValue(doaConflictsMap.get(doaStatusArray[i - 1].toString()).getDays());
                 }
                 //Study names
                 else {
-                    newColumnCell.setCellValue(doaStatusMap.get(doaStatusArray[i - 1].toString()).getStudies());
+                    newColumnCell.setCellValue(doaConflictsMap.get(doaStatusArray[i - 1].toString()).getStudies());
                 }
             }
         }

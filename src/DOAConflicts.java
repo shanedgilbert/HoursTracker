@@ -1,12 +1,12 @@
 import java.util.LinkedList;
 
-public class DOAStatus {
+public class DOAConflicts {
     //Instance variables
     LinkedList<String> dayList;
     LinkedList<String> studyList;
 
     //Constructor to set empty study set
-    public DOAStatus() {
+    public DOAConflicts() {
         dayList = new LinkedList<>();
         studyList = new LinkedList<>();
     }
