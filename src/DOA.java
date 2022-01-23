@@ -262,8 +262,6 @@ public class DOA {
                 }
             }
         }
-        System.out.println("sheet name: " + currentSheet.getSheetName());
-
         staffShiftedStudies = getSimplifiedStaffName(staffShiftedStudies);      //Simplifies and normalizes the names for comparison
         doaStaffStatusMap = getSimplifiedStaffName(doaStaffStatusMap);
         String[] staffArray = staffShiftedStudies.keySet().toArray(new String[0]);
@@ -272,8 +270,11 @@ public class DOA {
             if(!Objects.equals(matchingName, "")) {                          //Matching names found
                 ArrayList<String> shiftedStudies = staffShiftedStudies.get(matchingName);
                 shiftedStudies.removeAll(doaStaffStatusMap.get(name));
-                System.out.println("staff: " + name + ", studies: " + shiftedStudies);
-                //TODO: (save sheet name as day and add the studies to a list)
+
+                if(!shiftedStudies.isEmpty()) {
+                    doaConflictsMap.putIfAbsent(name, new DOAConflicts());
+                    doaConflictsMap.get(name).addToConflictMap(currentSheet.getSheetName(), shiftedStudies);
+                }
             }
         }
     }
@@ -345,28 +346,26 @@ public class DOA {
         staffNames.setCellValue("Name");
 
         Cell conflictDays = headers.createCell(1);  //Conflict days header (2)
-        conflictDays.setCellValue("Conflict Days");
-
-        Cell studyNames = headers.createCell(2);    //Study names header (3)
-        studyNames.setCellValue("Study Names");
+        conflictDays.setCellValue("Conflicts");
 
         //Updates each cell of the row with the staff data. ie: staff name, conflict days, study names
         Object[] doaStatusArray = doaConflictsMap.keySet().toArray();
         for(int i = 1; i < doaConflictsMap.size() + 1; i++) {
+            String staffName = doaStatusArray[i - 1].toString();
             Row newRow = doaSheet.createRow(i);
-            for(int j = 0; j < 3; j++) {
+            for(int j = 0; j < 2; j++) {
                 Cell newColumnCell = newRow.createCell(j);
                 //Staff names
                 if(j == 0) {
-                    newColumnCell.setCellValue(doaStatusArray[i - 1].toString());
+                    newColumnCell.setCellValue(staffName);
                 }
                 //Conflict days
-                else if(j == 1) {
-                    newColumnCell.setCellValue(doaConflictsMap.get(doaStatusArray[i - 1].toString()).getDays());
-                }
-                //Study names
                 else {
-                    newColumnCell.setCellValue(doaConflictsMap.get(doaStatusArray[i - 1].toString()).getStudies());
+                    Map<String, ArrayList<String>> studyConflicts = doaConflictsMap.get(staffName).getDayStudyMap();
+                    for(Map.Entry<String, ArrayList<String>> entry : studyConflicts.entrySet()) {
+                        String currentCellValue = newColumnCell.getStringCellValue();
+                        newColumnCell.setCellValue(currentCellValue + "Day: " + entry.getKey() + ", Studies: " + entry.getValue() + " ");
+                    }
                 }
             }
         }

@@ -1,48 +1,31 @@
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 public class DOAConflicts {
     //Instance variables
-    LinkedList<String> dayList;
-    LinkedList<String> studyList;
+    Map<String, ArrayList<String>> dayStudyMap;
 
-    //Constructor to set empty study set
+    //Constructor to set empty study map
     public DOAConflicts() {
-        dayList = new LinkedList<>();
-        studyList = new LinkedList<>();
+        dayStudyMap = new HashMap<>();
     }
 
     /**
-     * Records the conflicting study and its day
-     * @param day Day of conflict
-     * @param studyName Name of study with conflict
+     * Adds a new day and its corresponding conflicts to the map
+     * @param day day of study conflict
+     * @param conflicts list of conflicting studies
      */
-    public void addStudy(String day, String studyName) {
-        dayList.add(day);
-        studyList.add(studyName);
+    public void addToConflictMap(String day, ArrayList<String> conflicts) {
+        dayStudyMap.put(day, conflicts);
     }
 
     /**
-     * Returns the string representation of the studies with DOA conflicts
-     * @return String representation of the studies with DOA conflicts
+     * Returns the map with days and its corresponding conflicting studies
+     * @return The map of days and its studies
      */
-    public String getDays() {
-        StringBuilder output = new StringBuilder();
-        for(String s : dayList) {
-            output.append(s);
-        }
-        return output.toString();
+    public Map<String, ArrayList<String>> getDayStudyMap() {
+        return dayStudyMap;
     }
-
-    /**
-     * Returns the string representation of the days with DOA conflicts
-     * @return String representation of the days with DOA conflicts
-     */
-    public String getStudies() {
-        StringBuilder output = new StringBuilder();
-        for(String s : studyList) {
-            output.append(s);
-        }
-        return output.toString();
-    }
-
 }
