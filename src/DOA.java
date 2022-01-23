@@ -18,12 +18,11 @@ public class DOA {
     //Instance variables
     private final String scheduleFileName;
     private final String doaFileName;
-    private final String doaSheetName = "DOA Analysis";
-    final static int STUDY_COLUMN = 13;
-    Map<String, DOAConflicts> doaConflictsMap = new HashMap<>();
-    Map<String, ArrayList<String>> doaStaffStatusMap = new HashMap<>();
-    ArrayList<String> scheduleDays = new ArrayList<>();
-    ArrayList<String> nonExistentStudies = new ArrayList<>();
+    private final String DOA_SHEET_NAME = "DOA Analysis";
+    private final Map<String, DOAConflicts> doaConflictsMap = new HashMap<>();
+    private Map<String, ArrayList<String>> doaStaffStatusMap = new HashMap<>();
+    private final ArrayList<String> scheduleDays = new ArrayList<>();
+    private final ArrayList<String> nonExistentStudies = new ArrayList<>();
 
     //Words to skip on schedule
     String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730",
@@ -90,7 +89,7 @@ public class DOA {
                 scheduleDays.add(currentSheet.getSheetName());
 
                 //Checks for DOA sheet at end of workbook
-                if (currentSheet.getSheetName().equals(doaSheetName)) {
+                if (currentSheet.getSheetName().equals(DOA_SHEET_NAME)) {
                     break;
                 }
                 HashMap<Color, String> studyMap = saveStudies(currentSheet);    //Map of studies
@@ -113,8 +112,8 @@ public class DOA {
      */
     private XSSFWorkbook removeDOASheet(XSSFWorkbook workbook) {
 
-        if(workbook.getSheet(doaSheetName) != null) {
-            workbook.removeSheetAt(workbook.getSheetIndex(doaSheetName));
+        if(workbook.getSheet(DOA_SHEET_NAME) != null) {
+            workbook.removeSheetAt(workbook.getSheetIndex(DOA_SHEET_NAME));
         }
         return workbook;
     }
@@ -367,7 +366,7 @@ public class DOA {
         workbook = removeDOASheet(workbook);
 
         //Creates new DOA sheet
-        XSSFSheet doaSheet = workbook.createSheet(doaSheetName);
+        XSSFSheet doaSheet = workbook.createSheet(DOA_SHEET_NAME);
 
         //Creates header for table
         Row headers = doaSheet.createRow(0);
@@ -415,7 +414,7 @@ public class DOA {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
-        System.out.println("Sheet saved as '" + doaSheetName + "'");
+        System.out.println("Sheet saved as '" + DOA_SHEET_NAME + "'");
     }
 
     /**
