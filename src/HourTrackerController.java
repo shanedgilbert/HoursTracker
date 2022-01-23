@@ -14,6 +14,7 @@ public class HourTrackerController implements Initializable {
     static TextArea staticOutputArea;
     private String filePath = "";
     private String rosterFilePath = "";
+    private String trackerFilePath = "";
 
     @FXML
     private Button cancelButton;
@@ -29,6 +30,9 @@ public class HourTrackerController implements Initializable {
 
     @FXML
     private TextArea rosterTextField;
+
+    @FXML
+    private TextArea trackerTextField;
 
     /**
      * Handles the generate button to create a sheet at the end of the workbook to track staff hours/work days
@@ -52,6 +56,14 @@ public class HourTrackerController implements Initializable {
     @FXML
     private void handleGenerateLunchButton() {
         inputRosterFile(filePath, rosterFilePath);
+    }
+
+    /**
+     * Handles the tracker generate button
+     */
+    @FXML
+    private void handleDOAAnalysisButton() {
+        inputTrackerFile(filePath, trackerFilePath);
     }
 
     /**
@@ -104,6 +116,26 @@ public class HourTrackerController implements Initializable {
     }
 
     /**
+     * Handles the event of importing the DOA tracking file
+     */
+    @FXML
+    private void handleImportTrackerButton() {
+        Window owner = selectFileButton.getScene().getWindow();
+
+        final FileChooser fileChooser = new FileChooser();
+        File inputFile = fileChooser.showOpenDialog(owner);
+
+        if(inputFile != null) {
+            //Updates status field with current file
+            trackerTextField.setText("Current file: " + inputFile.getName());
+            outputTextField.setText(outputTextField.getText() + "DOA tracker file selected.\n" +
+                    "Press 'Select File' if a schedule has not already been selected.\n" +
+                    "Press 'Generate' to generate DOA analysis for the input schedule.\n");
+            trackerFilePath = inputFile.getAbsolutePath();
+        }
+    }
+
+    /**
      * Verifies the extension of the input file. Returns true if the file name contains .xlsx
      * @param fileName name of the file
      * @return true if file name contains .xlsx. False otherwise
@@ -115,7 +147,7 @@ public class HourTrackerController implements Initializable {
     /**
      * Links the staff hour analysis and staff only sheet with the generate button
      * @param fileName File extension for the Excel file we want to modify/analyze
-     * @param option 0 = hour analysis. 1 = create staff only sheet
+     * @param option 0 = hour analysis. 1 = create staff only sheet. 2 = create DOA analysis sheet
      */
     private void inputFile(String fileName, int option) {
         if(fileName == null || fileName.isEmpty()) {
@@ -154,13 +186,32 @@ public class HourTrackerController implements Initializable {
 //            rosterTextField.setText("No roster file selected\n" +
 //                    "Please select a file below...");
 //        }
-        if(!verifyFileExtension(filePath)) {
+        if(!verifyFileExtension(filePath) || !verifyFileExtension(rosterFilePath)) {
             statusTextField.setText("Wrong file type!");
         }
         else {
             HourTracker ht = new HourTracker(filePath);
             ht.setRosterFileName(rosterFilePath);
             ht.saveLunches();
+        }
+    }
+
+    /**
+     * Links the DOA tracking analysis with the generate DOA analysis button
+     * @param filePath Schedule file path
+     * @param trackerFilePath Tracker file path
+     */
+    private void inputTrackerFile(String filePath, String trackerFilePath) {
+        if(filePath == null || filePath.isEmpty()) {
+            statusTextField.setText("No schedule file selected\n" +
+                    "Please select a file above...");
+        }
+        if(!verifyFileExtension(filePath) || !verifyFileExtension(trackerFilePath)) {
+            statusTextField.setText("Wrong file type!");
+        }
+        else {
+            DOA doa = new DOA(filePath, trackerFilePath);
+            doa.analyzeScheduleWorkbook();
         }
     }
 
