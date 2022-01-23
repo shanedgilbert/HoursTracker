@@ -50,7 +50,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="600.0" maxWidth="1200.0" minHeight="600.0" minWidth="1200.0" prefHeight="600.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="HourTrackerController">
+<VBox maxHeight="600.0" maxWidth="1200.0" minHeight="600.0" minWidth="1200.0" prefHeight="600.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="HourTrackerController">
   <children>
     <AnchorPane maxHeight="600.0" maxWidth="1200.0" minHeight="600.0" minWidth="1200.0" prefHeight="600.0" prefWidth="1200.0" VBox.vgrow="ALWAYS">
       <children>
@@ -159,7 +159,7 @@
             <Line endX="-100.0" endY="259.0" layoutX="500.0" layoutY="340.0" startX="-100.0" startY="-1.0" />
             <Line endX="297.0" layoutX="502.0" layoutY="339.0" startX="-100.0" />
             <Line endX="100.0" layoutX="301.0" layoutY="339.0" startX="-301.0" />
-            <Rectangle arcHeight="5.0" fill="#707793" height="600.0" layoutX="800.0" layoutY="-3.0" smooth="false" stroke="BLACK" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" width="400.0">
+            <Rectangle arcHeight="5.0" fill="#707793" height="600.0" layoutX="799.0" layoutY="-3.0" smooth="false" stroke="BLACK" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" width="401.0">
                <rotationAxis>
                   <Point3D z="-1.0" />
                </rotationAxis>
