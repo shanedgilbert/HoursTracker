@@ -23,6 +23,7 @@ public class DOA {
     Map<String, DOAConflicts> doaConflictsMap = new HashMap<>();
     Map<String, ArrayList<String>> doaStaffStatusMap = new HashMap<>();
     ArrayList<String> scheduleDays = new ArrayList<>();
+    ArrayList<String> nonExistentStudies = new ArrayList<>();
 
     //Words to skip on schedule
     String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730",
@@ -55,14 +56,14 @@ public class DOA {
      * @return The workbook object representing the xlsx workbook
      */
     private XSSFWorkbook inputFile(String fileName) {
-        System.out.println("Searching for file...");
+        System.out.println("Searching for " + fileName);
         XSSFWorkbook Workbook = new XSSFWorkbook();
         try {
             File inputFile = new File(fileName);
             FileInputStream fis = new FileInputStream(inputFile);
             Workbook = new XSSFWorkbook(fis);
 
-            System.out.println("File found");
+            System.out.println(fileName + " found");
             System.out.println("Importing " + fileName + "...");
         }
         catch(FileNotFoundException fnf) {
@@ -97,6 +98,7 @@ public class DOA {
             }
             saveDOAAnalysisAsSheet(scheduleWorkbook);                           //Saves a report at the end of the workbook
             scheduleWorkbook.close();
+            displayNonexistentStudies();
         }
         catch(Exception e) {
             System.out.println(e.getMessage());
@@ -143,7 +145,9 @@ public class DOA {
                             break;
                         }
                         if(!studyIterator.hasNext()) {                    //Studies that aren't found in the list
-                            System.out.println(studyName + " does not exist in the 'studies.txt' list!");
+                            if(!nonExistentStudies.contains(studyName)) {
+                                nonExistentStudies.add(studyName);
+                            }
                         }
                     }
                 }
@@ -267,7 +271,9 @@ public class DOA {
                                 break;
                             }
                             if (!studyIterator.hasNext()) {                              //Studies that aren't found in the list
-                                System.out.println(procedureStudyName + " does not exist in the 'studies.txt' list!");
+                                if(!nonExistentStudies.contains(procedureStudyName)) {
+                                    nonExistentStudies.add(procedureStudyName);
+                                }
                             }
                         }
 
@@ -342,6 +348,16 @@ public class DOA {
     }
 
     /**
+     * Displays the studies that don't exist in the DOA
+     */
+    private void displayNonexistentStudies() {
+        System.out.println("The following studies do not exist in the '" + doaFileName + "' list:");
+        for (String nonExistentStudy : nonExistentStudies) {
+            System.out.println(nonExistentStudy);
+        }
+    }
+
+    /**
      * Saves the study conflicts with staff as an additional sheet at the end of the workbook
      * @param workbook Excel workbook being analyzed for study/DOA conflicts
      */
@@ -399,7 +415,7 @@ public class DOA {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
-        System.out.println("Sheet saved as '" + scheduleFileName + "'");
+        System.out.println("Sheet saved as '" + doaSheetName + "'");
     }
 
     /**
