@@ -80,9 +80,8 @@ public class DOA {
     private void analyzeScheduleWorkbook() {
         XSSFWorkbook scheduleWorkbook = inputFile(scheduleFileName);
         try {
-            int sheetCount = scheduleWorkbook.getNumberOfSheets();
-
             scheduleWorkbook = removeDOASheet(scheduleWorkbook);                //Removed DOA Analysis sheet if it exists
+            int sheetCount = scheduleWorkbook.getNumberOfSheets();
 
             //Loops through each sheet in workbook
             for (int i = 0; i < sheetCount; i++) {
