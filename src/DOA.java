@@ -77,7 +77,7 @@ public class DOA {
     /**
      * Analyzes the workbook object by iterating through each sheet and checking if each staff is delegated to their assigned study
      */
-    private void analyzeScheduleWorkbook() {
+    public void analyzeScheduleWorkbook() {
         XSSFWorkbook scheduleWorkbook = inputFile(scheduleFileName);
         try {
             scheduleWorkbook = removeDOASheet(scheduleWorkbook);                //Removed DOA Analysis sheet if it exists
@@ -98,6 +98,7 @@ public class DOA {
             saveDOAAnalysisAsSheet(scheduleWorkbook);                           //Saves a report at the end of the workbook
             scheduleWorkbook.close();
             displayNonexistentStudies();
+            System.out.println("DOA Analysis complete!");
         }
         catch(Exception e) {
             System.out.println(e.getMessage());
