@@ -306,7 +306,7 @@ public class DOA {
      * Searches the input array for the input string and returns the matching string
      * @param inputString string being searched for in the array
      * @param stringArray array being searched
-     * @return matching string. "" if nothing if no match is found
+     * @return matching string. "" if no match is found
      */
     private String getMatchingSubstring(String inputString, String[] stringArray) {
         Optional<String> foundString = Arrays.stream(stringArray).parallel().filter(inputString::contains).findAny();
