@@ -22,6 +22,7 @@ public class DOA {
     final static int STUDY_COLUMN = 13;
     Map<String, DOAConflicts> doaConflictsMap = new HashMap<>();
     Map<String, ArrayList<String>> doaStaffStatusMap = new HashMap<>();
+    ArrayList<String> scheduleDays = new ArrayList<>();
 
     //Words to skip on schedule
     String[] tabooWords = {"Staff Name", "Staff", "Shift", "Day Shift 0700-1530", "Mid Shift 1500-2330", "Night Shift 2300-0730",
@@ -81,9 +82,12 @@ public class DOA {
         try {
             int sheetCount = scheduleWorkbook.getNumberOfSheets();
 
+            scheduleWorkbook = removeDOASheet(scheduleWorkbook);                //Removed DOA Analysis sheet if it exists
+
             //Loops through each sheet in workbook
             for (int i = 0; i < sheetCount; i++) {
                 Sheet currentSheet = scheduleWorkbook.getSheetAt(i);            //Current sheet
+                scheduleDays.add(currentSheet.getSheetName());
 
                 //Checks for DOA sheet at end of workbook
                 if (currentSheet.getSheetName().equals(doaSheetName)) {
@@ -100,6 +104,20 @@ public class DOA {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Remove the DOA analysis sheet if it already exists
+     * @param workbook Workbook being checked for DOA analysis sheet
+     * @return the workbook without the DOA Analysis sheet
+     */
+    private XSSFWorkbook removeDOASheet(XSSFWorkbook workbook) {
+
+        if(workbook.getSheet(doaSheetName) != null) {
+            workbook.removeSheetAt(workbook.getSheetIndex(doaSheetName));
+        }
+        return workbook;
+    }
+
 
     /**
      * Reads the DOA Tracker and saves the staff to and their studies to a map
@@ -328,32 +346,35 @@ public class DOA {
      * Saves the study conflicts with staff as an additional sheet at the end of the workbook
      * @param workbook Excel workbook being analyzed for study/DOA conflicts
      */
-    //TODO: (save sheet name as day and add the studies to a list)
     private void saveDOAAnalysisAsSheet(XSSFWorkbook workbook) {
         System.out.println("Saving DOA Analysis as Excel sheet to current workbook");
 
-        //Remove the DOA analysis sheet if it already exists
-        if(workbook.getSheet(doaSheetName) != null) {
-            workbook.removeSheetAt(workbook.getSheetIndex(doaSheetName));
-        }
+        workbook = removeDOASheet(workbook);
 
         //Creates new DOA sheet
         XSSFSheet doaSheet = workbook.createSheet(doaSheetName);
 
         //Creates header for table
         Row headers = doaSheet.createRow(0);
-        Cell staffNames = headers.createCell(0);    //Name header (1)
+
+        //Name header
+        Cell staffNames = headers.createCell(0);
         staffNames.setCellValue("Name");
 
-        Cell conflictDays = headers.createCell(1);  //Conflict days header (2)
-        conflictDays.setCellValue("Conflicts");
+        //Conflict days header
+        for(int day = 1; day < scheduleDays.size() + 1; day++) {
+            Cell conflictDays = headers.createCell(day);
+            conflictDays.setCellValue(scheduleDays.get(day - 1));
+        }
 
-        //Updates each cell of the row with the staff data. ie: staff name, conflict days, study names
+        //Loops over the staff names
         Object[] doaStatusArray = doaConflictsMap.keySet().toArray();
         for(int i = 1; i < doaConflictsMap.size() + 1; i++) {
-            String staffName = doaStatusArray[i - 1].toString();
-            Row newRow = doaSheet.createRow(i);
-            for(int j = 0; j < 2; j++) {
+            Row newRow = doaSheet.createRow(i);                         //Creates new row per staff
+            String staffName = doaStatusArray[i - 1].toString();        //Staff name
+
+            Map<String, ArrayList<String>> staffConflictDays = doaConflictsMap.get(staffName).dayStudyMap;
+            for(int j = 0; j < scheduleDays.size() + 1; j++) {
                 Cell newColumnCell = newRow.createCell(j);
                 //Staff names
                 if(j == 0) {
@@ -361,10 +382,9 @@ public class DOA {
                 }
                 //Conflict days
                 else {
-                    Map<String, ArrayList<String>> studyConflicts = doaConflictsMap.get(staffName).getDayStudyMap();
-                    for(Map.Entry<String, ArrayList<String>> entry : studyConflicts.entrySet()) {
-                        String currentCellValue = newColumnCell.getStringCellValue();
-                        newColumnCell.setCellValue(currentCellValue + "Day: " + entry.getKey() + ", Studies: " + entry.getValue() + " ");
+                    if(staffConflictDays.containsKey(scheduleDays.get(j - 1))) {
+                        newColumnCell = newRow.createCell(j);
+                        newColumnCell.setCellValue(staffConflictDays.get(scheduleDays.get(j - 1)).toString());
                     }
                 }
             }
