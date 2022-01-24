@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>D:\Projects\HoursTracker\HoursTracker\out\artifacts\Main_java_jar\Main.java.jar</jar>
-  <outfile>D:\HourTracker\HourTracker.exe</outfile>
+  <jar>G:\Project\HourTracker\out\artifacts\Main_java_jar\Main.java.jar</jar>
+  <outfile>G:\Project\HourTracker\HourTracker-Files\HourTracker.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>D:\Projects\HoursTracker\HoursTracker\HourTracker-Files\calendar.ico</icon>
+  <icon>G:\Project\HourTracker\HourTracker-Files\calendar.ico</icon>
   <jre>
     <path>jre</path>
     <bundledJre64Bit>false</bundledJre64Bit>
