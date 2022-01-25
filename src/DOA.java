@@ -253,11 +253,13 @@ public class DOA {
                     if(checkForEmptyCell(currentCell)) {    //Checks for blank cell
                         break;
                     }
-                    //Gets the study name for the current procedure
-                    if(!tabooWordsList.contains(currentCell.getStringCellValue().replaceFirst("\\s++$", ""))) {
-                        Color procedureColor = currentCell.getCellStyle().getFillForegroundColorColor();
-                        if (studyMap.containsKey(procedureColor)) {                 //Checks if the color represents a study
-                            procedureStudyName = studyMap.get(procedureColor);      //Retrieves the study name from its color
+                    //Gets the study name for the current procedure if it exists
+                    if(!checkForEmptyCell(currentCell)) {
+                        if (!tabooWordsList.contains(currentCell.getStringCellValue().replaceFirst("\\s++$", ""))) {
+                            Color procedureColor = currentCell.getCellStyle().getFillForegroundColorColor();
+                            if (studyMap.containsKey(procedureColor)) {                 //Checks if the color represents a study
+                                procedureStudyName = studyMap.get(procedureColor);      //Retrieves the study name from its color
+                            }
                         }
                     }
 
